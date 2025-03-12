@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link'
 
 const TermsOfService = () => {
   const sections = [
@@ -89,7 +89,7 @@ You must not disrupt the platform's functionality or compromise the experience o
     {
       title: "Privacy",
       content: <span>
-        By using www.vitaminjob.com, you agree to the collection and use of your personal information as described in our <Link to="/privacy-policy" className="text-blue-600 hover:underline dark:text-blue-500">
+        By using www.vitaminjob.com, you agree to the collection and use of your personal information as described in our <Link href="/privacy-policy" className="text-blue-600 hover:underline dark:text-blue-500">
                   Privacy Policy
                 </Link>. This includes information collected for advertising purposes through Google AdSense. Please read our Privacy Policy to understand how we protect and manage your data.
       </span>
