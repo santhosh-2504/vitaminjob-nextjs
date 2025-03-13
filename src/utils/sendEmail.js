@@ -1,18 +1,18 @@
 import nodeMailer from "nodemailer"
 
-export const sendEmail = async({email, subject, message, type = 'signin'})=>{
+export const sendEmail = async({email, subject, message})=>{
     const transporter = nodeMailer.createTransport({
-        host : process.env.NEXT_PUBLIC_SMTP_HOST,
-        service: process.env.NEXT_PUBLIC_SMTP_SERVICE,
-        port : process.env.NEXT_PUBLIC_SMTP_PORT,
+        host : process.env.SMTP_HOST,
+        service: process.env.SMTP_SERVICE,
+        port : process.env.SMTP_PORT,
         auth : {
-            user : type === 'signin' ? process.env.NEXT_PUBLIC_SMTP_MAIL_SIGNIN : process.env.NEXT_PUBLIC_SMTP_MAIL_LOGIN,
-            pass : type === 'signin' ? process.env.NEXT_PUBLIC_SMTP_PASSWORD_SIGNIN : process.env.NEXT_PUBLIC_SMTP_PASSWORD_LOGIN
+            user : process.env.SMTP_MAIL,
+            pass : process.env.SMTP_PASSWORD
         }
     })
 
     const options = {
-        from : type === 'signin' ? process.env.NEXT_PUBLIC_SMTP_MAIL_SIGNIN : process.env.NEXT_PUBLIC_SMTP_MAIL_LOGIN,
+        from : process.env.SMTP_MAIL,
         to : email,
         subject,
         text : message
