@@ -56,7 +56,7 @@ const RoadmapPage = () => {
 
   // Handle errors
   useEffect(() => {
-    if (userError && userError !== "User not authenticated") {
+    if (userError && userError !== "Please login to access this resource") {
       toast.error(userError);
       dispatch(clearAllUserErrors());
     }
