@@ -1,17 +1,12 @@
 import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import { toast } from 'react-toastify';
-import { deleteAccount } from '@/store/slices/userSlice'; // Update path as needed
 
 const DeleteAccount = () => {
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [password, setPassword] = useState('');
-  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
-  
-  // eslint-disable-next-line no-unused-vars
-  const { loading } = useSelector((state) => state.user);
 
   const handleDelete = async () => {
     if (!isConfirmed || !password) {
@@ -19,17 +14,34 @@ const DeleteAccount = () => {
       return;
     }
 
+    setLoading(true);
+
     try {
-      await dispatch(deleteAccount(password)).unwrap();
-      toast.success('Your account has been deleted successfully.');
-      // Add a small delay before navigation
-      setTimeout(() => {
-        router.push('/');
-      }, 2000); // 2 seconds delay to show the toast
+      const res = await fetch('/api/auth/delete-account', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        toast.success('Your account has been deleted successfully.');
+        setTimeout(() => {
+          router.push('/');
+        }, 2000); // 2 seconds delay to show the toast
+      } else {
+        toast.error(data.message || 'Failed to delete account. Please try again.');
+      }
     } catch (error) {
-      toast.error(error || 'Failed to delete account. Please try again.');
+      toast.error('Failed to delete account. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
+
   return (
     <div className="delete-account bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 max-w-2xl mx-auto">
       <h2 className="text-xl font-semibold text-red-500 mb-4">Delete Your Account</h2>
