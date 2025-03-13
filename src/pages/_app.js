@@ -4,7 +4,8 @@ import { store } from "@/store/store";
 import { getUser } from "@/store/slices/userSlice";
 import Layout from "@/components/Layout/index";
 import { AppProvider } from "@/store/provider";
-import Head from "next/head"; // Import Head for favicon
+import Head from "next/head"; // Import Head for favicon and AdSense
+import Script from "next/script"; // Import Next.js Script for optimized loading
 import "@/styles/globals.css";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -23,7 +24,14 @@ function AppContent({ Component, pageProps }) {
         <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
         <title>Vitamin Job</title>
       </Head>
-      
+
+      {/* Google AdSense Script for verification */}
+        <Script
+              async 
+              src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8413438270446322"
+              crossorigin="anonymous"
+            />
+
       <Layout>
         <Component {...pageProps} />
         <ToastContainer 
