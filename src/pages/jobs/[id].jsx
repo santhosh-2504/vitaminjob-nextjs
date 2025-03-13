@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { MdLocationOn, MdWork, MdAttachMoney, MdLabel, MdCalendarToday, MdPerson, MdTrendingUp, MdLanguage, MdTimer } from "react-icons/md";
-import { FaExternalLinkAlt, FaArrowLeft, FaBuilding, FaBriefcase, FaGraduationCap, FaRegThumbsUp, FaUserTie, FaChartLine, FaClock } from "react-icons/fa";
+import { FaExternalLinkAlt, FaArrowLeft, FaBuilding, FaBriefcase, FaGraduationCap, FaRegThumbsUp, FaUserTie, FaRegLightbulb,FaRegStar,FaRegHandshake, FaClock } from "react-icons/fa";
 import { toast } from 'react-toastify';
 import Error from "next/error";
 import Link from "next/link";
@@ -265,16 +265,7 @@ const JobDetails = ({ job, similarJobs, recentJobs, errorCode }) => {
                     </div>
                   </div>
 
-                  {/* Quick apply button for mobile */}
-                  <div className="block md:hidden mt-4">
-                    <button
-                      onClick={handleApply}
-                      className="w-full py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors flex items-center justify-center"
-                    >
-                      <span>Apply Now</span>
-                      <FaExternalLinkAlt className="ml-2 w-4 h-4" />
-                    </button>
-                  </div>
+                  {/* Removed the Quick apply button for mobile */}
                 </div>
               </div>
             </div>
@@ -408,29 +399,23 @@ const JobDetails = ({ job, similarJobs, recentJobs, errorCode }) => {
               </div>
             </div>
 
-            {/* Similar Jobs Section */}
-            < SimilarJobsSection />
-
-            {/* Recent Jobs Section */}
-            < RecentJobsSection />
-          </div>
-
-          {/* Right Column - Sidebar */}
-          <div className="lg:col-span-1">
-            {/* Apply Now Card */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8 sticky top-4">
-              <h2 className="text-xl font-semibold mb-6 dark:text-white">Apply for this position</h2>
+            {/* Apply Now Section - New section at the bottom of the content */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+              <h2 className="text-xl font-semibold mb-6 dark:text-white">Ready to Apply?</h2>
               <div className="mb-6">
+                <p className="text-gray-700 dark:text-gray-300 mb-4">
+                  If this position matches your skills and career goals, we encourage you to apply now.
+                </p>
                 <div className="flex items-center mb-4">
                   <MdTimer className="text-blue-500 dark:text-blue-400 mr-2" />
-                  <p className="text-gray-600 dark:text-gray-300 text-sm">
+                  <p className="text-gray-700 dark:text-gray-300">
                     Job posted: {formatDate(job.createdAt)}
                   </p>
                 </div>
                 {job.expiryDate && (
                   <div className="flex items-center mb-4">
                     <MdCalendarToday className="text-blue-500 dark:text-blue-400 mr-2" />
-                    <p className="text-gray-600 dark:text-gray-300 text-sm">
+                    <p className="text-gray-700 dark:text-gray-300">
                       Application deadline: {formatDate(job.expiryDate)}
                     </p>
                   </div>
@@ -438,7 +423,7 @@ const JobDetails = ({ job, similarJobs, recentJobs, errorCode }) => {
               </div>
               <button
                 onClick={handleApply}
-                className="group relative w-full inline-flex items-center justify-center px-8 py-3 text-lg font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl shadow-lg transform transition-all duration-200 hover:scale-105 hover:shadow-xl"
+                className="group relative w-full inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl shadow-lg transform transition-all duration-200 hover:scale-105 hover:shadow-xl"
               >
                 <span className="relative flex items-center">
                   Apply Now
@@ -450,6 +435,18 @@ const JobDetails = ({ job, similarJobs, recentJobs, errorCode }) => {
               </p>
             </div>
 
+            {/* Similar Jobs Section */}
+            < SimilarJobsSection />
+
+            {/* Recent Jobs Section */}
+            < RecentJobsSection />
+          </div>
+
+          {/* Right Column - Sidebar */}
+          <div className="lg:col-span-1">
+            {/* Moved the Apply Now Card to the bottom of the sidebar */}
+            
+            {/* Job Overview Card */}
             {/* Job Overview Card */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
               <h2 className="text-xl font-semibold mb-6 dark:text-white">Job Overview</h2>
@@ -565,7 +562,7 @@ const JobDetails = ({ job, similarJobs, recentJobs, errorCode }) => {
 
             {/* Contact Card */}
             {job.recruiterContact && (job.recruiterContact.email || job.recruiterContact.phone) && (
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
                 <h2 className="text-xl font-semibold mb-6 dark:text-white">Contact Recruiter</h2>
                 <div className="space-y-4">
                   {job.recruiterContact.email && (
@@ -604,6 +601,78 @@ const JobDetails = ({ job, similarJobs, recentJobs, errorCode }) => {
                 </div>
               </div>
             )}
+
+            {/* "Why You'll Love This Job" Card - New section */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+              <h2 className="text-xl font-semibold mb-6 dark:text-white">Why You'll Love This Job</h2>
+              <div className="space-y-4">
+                <div className="flex items-start">
+                  <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center">
+                    <FaRegLightbulb className="w-5 h-5 text-blue-500 dark:text-blue-400" />
+                  </div>
+                  <div className="ml-2 flex-1">
+                    <span className="font-medium dark:text-gray-200">Growth Opportunity</span>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      Expand your skills and advance your career with a growing company.
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start">
+                  <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center">
+                    <FaRegStar className="w-5 h-5 text-blue-500 dark:text-blue-400" />
+                  </div>
+                  <div className="ml-2 flex-1">
+                    <span className="font-medium dark:text-gray-200">Impactful Work</span>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      Make a real difference with your contributions to the team.
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start">
+                  <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center">
+                    <FaRegHandshake className="w-5 h-5 text-blue-500 dark:text-blue-400" />
+                  </div>
+                  <div className="ml-2 flex-1">
+                    <span className="font-medium dark:text-gray-200">Collaborative Culture</span>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      Join a supportive team that values your input and ideas.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Apply Now Card - Moved to the bottom */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 sticky top-4">
+              <h2 className="text-xl font-semibold mb-6 dark:text-white">Interested?</h2>
+              <div className="mb-6">
+                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                  Don't miss this opportunity! Apply before the deadline.
+                </p>
+                {job.expiryDate && (
+                  <div className="flex items-center mb-4">
+                    <MdCalendarToday className="text-blue-500 dark:text-blue-400 mr-2" />
+                    <p className="text-gray-600 dark:text-gray-300 text-sm">
+                      Application deadline: {formatDate(job.expiryDate)}
+                    </p>
+                  </div>
+                )}
+              </div>
+              {/*<button
+                onClick={handleApply}
+                className="group relative w-full inline-flex items-center justify-center px-8 py-3 text-lg font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl shadow-lg transform transition-all duration-200 hover:scale-105 hover:shadow-xl"
+              >
+                <span className="relative flex items-center">
+                  Apply Now
+                  <FaExternalLinkAlt className="ml-2 w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+                </span>
+              </button>*/}
+              <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
+                You'll be redirected to the company's application page
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -662,7 +731,9 @@ export async function getServerSideProps(context) {
     .lean();
 
     // Fetch recent jobs
-    const recentJobs = await Job.find()
+    const recentJobs = await Job.find({
+      _id : {$ne : id}
+    })
       .sort({ _id: -1 })
       .limit(4)
       .select('title companyName location jobType companyLogo _id createdAt')
