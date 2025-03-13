@@ -2,19 +2,12 @@ import React from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
-import { addBookmark, removeBookmark } from "@/store/slices/userSlice";
 import {
-  FaBookmark,
-  FaRegBookmark,
   FaMapMarkerAlt,
   FaMoneyBillWave,
   FaBriefcase,
   FaClock,
-  FaGlobe,
-  FaBuilding,
-  FaGraduationCap,
   FaGift,
   FaLaptopHouse,
   FaTags,
@@ -293,8 +286,8 @@ const Jobs = ({
       <Head>
         <title>
           {searchInput
-            ? `${searchInput} Jobs ${selectedCity !== "All" ? `in ${selectedCity}` : ""} | Job Board`
-            : `Job Openings ${selectedCity !== "All" ? `in ${selectedCity}` : ""} | Job Board`}
+            ? `${searchInput} Jobs ${selectedCity !== "All" ? `in ${selectedCity}` : ""} | Vitamin Job`
+            : `Job Openings ${selectedCity !== "All" ? `in ${selectedCity}` : ""} | Vitamin Job`}
         </title>
         <meta
           name="description"
