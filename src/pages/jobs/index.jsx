@@ -14,6 +14,7 @@ import {
   FaStar,
   FaCalendarAlt,
 } from "react-icons/fa";
+import Script from "next/script";
 
 // SEO helper functions
 const generateMetaDescription = (selectedCity, selectedNiche, searchKeyword, totalJobs = 0) => {
@@ -308,6 +309,12 @@ const Jobs = ({
             __html: sanitizeJSON(generateJobListingSchema(jobs, baseUrl)),
           }}
         />
+        {/* Add Google AdSense script */}
+        <script
+          data-ad-client="ca-pub-8413438270446322"
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+        ></script>
       </Head>
 
       <div className="bg-gray-100 dark:bg-gray-900 min-h-screen pt-16">
