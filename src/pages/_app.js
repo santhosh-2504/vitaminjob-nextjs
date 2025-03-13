@@ -62,4 +62,3 @@ function MyApp(props) {
 }
 
 export default MyApp;
-git 
