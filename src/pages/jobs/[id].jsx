@@ -4,16 +4,13 @@ import { MdLocationOn, MdWork, MdAttachMoney, MdLabel, MdCalendarToday, MdPerson
 import { FaExternalLinkAlt, FaArrowLeft, FaBuilding, FaBriefcase, FaGraduationCap, FaRegThumbsUp, FaUserTie, FaChartLine, FaClock } from "react-icons/fa";
 import { toast } from 'react-toastify';
 import Error from "next/error";
-import { useState, useEffect } from "react";
 import Link from "next/link";
+import dbConnect from "@/lib/dbConnect";
+import { Job } from "@/lib/models/Job";
 
-const JobDetails = ({ job, errorCode }) => {
+const JobDetails = ({ job, similarJobs, recentJobs, errorCode }) => {
   const router = useRouter();
   const { isAuthenticated } = useSelector((state) => state.user);
-  const [similarJobs, setSimilarJobs] = useState([]);
-  const [recentJobs, setRecentJobs] = useState([]);
-  const [loadingSimilar, setLoadingSimilar] = useState(true);
-  const [loadingRecent, setLoadingRecent] = useState(true);
 
   const handleBack = () => {
     router.back();
@@ -36,7 +33,6 @@ const JobDetails = ({ job, errorCode }) => {
     window.open(job.applyLink, '_blank');
   };
 
-  // Format date helper function
   const formatDate = (dateString) => {
     if (!dateString) return "Not specified";
     const date = new Date(dateString);
@@ -47,7 +43,6 @@ const JobDetails = ({ job, errorCode }) => {
     }).format(date);
   };
 
-  // Get days remaining until expiry
   const getDaysRemaining = (expiryDateString) => {
     if (!expiryDateString) return null;
     const expiryDate = new Date(expiryDateString);
@@ -57,64 +52,14 @@ const JobDetails = ({ job, errorCode }) => {
     return diffDays > 0 ? diffDays : 0;
   };
 
-  // Handle 404 and other errors
   if (errorCode) {
     return <Error statusCode={errorCode} />;
   }
 
-  useEffect(() => {
-    const fetchSimilarJobs = async () => {
-      try {
-        const res = await fetch(`/api/jobs/similar/${job._id}`);
-        const data = await res.json();
-        if (data.success) {
-          setSimilarJobs(data.jobs);
-        }
-      } catch (error) {
-        console.error('Error fetching similar jobs:', error);
-      } finally {
-        setLoadingSimilar(false);
-      }
-    };
-
-    const fetchRecentJobs = async () => {
-      try {
-        const res = await fetch(`/api/jobs/recent`);
-        const data = await res.json();
-        if (data.success) {
-          setRecentJobs(data.jobs);
-        }
-      } catch (error) {
-        console.error('Error fetching recent jobs:', error);
-      } finally {
-        setLoadingRecent(false);
-      }
-    };
-
-    if (job?._id) {
-      fetchSimilarJobs();
-      fetchRecentJobs();
-    }
-  }, [job?._id]);
-
   const SimilarJobsSection = () => (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
       <h2 className="text-xl font-semibold mb-6 dark:text-white">Similar Jobs You Might Like</h2>
-      {loadingSimilar ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {[1, 2, 3, 4].map((placeholder) => (
-            <div key={placeholder} className="border dark:border-gray-700 rounded-lg p-4 animate-pulse">
-              <div className="flex items-start mb-2">
-                <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-md mr-4" />
-                <div className="flex-1">
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2" />
-                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2" />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : similarJobs.length > 0 ? (
+      {similarJobs.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {similarJobs.map((similarJob) => (
             <Link
@@ -165,66 +110,52 @@ const JobDetails = ({ job, errorCode }) => {
   const RecentJobsSection = () => (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
       <h2 className="text-xl font-semibold mb-6 dark:text-white">Recent Jobs</h2>
-      {loadingRecent ? (
-        <div className="grid grid-cols-1 gap-4">
-          {[1, 2, 3, 4].map((placeholder) => (
-            <div key={placeholder} className="border dark:border-gray-700 rounded-lg p-4 animate-pulse">
-              <div className="flex items-start mb-2">
-                <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-md mr-4" />
-                <div className="flex-1">
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2" />
-                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2" />
-                </div>
+      {recentJobs.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {recentJobs.map((recentJob) => (
+          <Link
+            href={`/jobs/${recentJob._id}`}
+            key={recentJob._id}
+            className="border dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow block"
+          >
+            <div className="flex items-start mb-2">
+              <div className="w-12 h-12 bg-white dark:bg-gray-700 rounded-md flex items-center justify-center mr-4">
+                {recentJob.companyLogo ? (
+                  <img
+                    src={recentJob.companyLogo}
+                    alt={`${recentJob.companyName} logo`}
+                    className="w-full h-full object-contain rounded-md"
+                  />
+                ) : (
+                  <FaBuilding className="w-6 h-6 text-gray-400 dark:text-gray-500" />
+                )}
+              </div>
+              <div>
+                <h3 className="font-medium dark:text-white line-clamp-1">{recentJob.title}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{recentJob.companyName}</p>
               </div>
             </div>
-          ))}
-        </div>
-      ) : recentJobs.length > 0 ? (
-        <div className="grid grid-cols-1 gap-4">
-          {recentJobs.map((recentJob) => (
-            <Link
-              href={`/jobs/${recentJob._id}`}
-              key={recentJob._id}
-              className="border dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow block"
-            >
-              <div className="flex items-start mb-2">
-                <div className="w-12 h-12 bg-white dark:bg-gray-700 rounded-md flex items-center justify-center mr-4">
-                  {recentJob.companyLogo ? (
-                    <img
-                      src={recentJob.companyLogo}
-                      alt={`${recentJob.companyName} logo`}
-                      className="w-full h-full object-contain rounded-md"
-                    />
-                  ) : (
-                    <FaBuilding className="w-6 h-6 text-gray-400 dark:text-gray-500" />
-                  )}
-                </div>
-                <div>
-                  <h3 className="font-medium dark:text-white line-clamp-1">{recentJob.title}</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{recentJob.companyName}</p>
-                </div>
-              </div>
-              <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 space-x-2">
-                <span className="flex items-center">
-                  <MdLocationOn className="mr-1" />
-                  {Array.isArray(recentJob.location) 
-                    ? recentJob.location[0] 
-                    : recentJob.location || "Location not specified"}
-                </span>
-                <span className="flex items-center">
-                  <MdWork className="mr-1" />
-                  {recentJob.jobType || "Job type not specified"}
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      ) : (
-        <p className="text-center text-gray-600 dark:text-gray-400">
-          No recent jobs found at the moment.
-        </p>
-      )}
-    </div>
+            <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 space-x-2">
+              <span className="flex items-center">
+                <MdLocationOn className="mr-1" />
+                {Array.isArray(recentJob.location) 
+                  ? recentJob.location[0] 
+                  : recentJob.location || "Location not specified"}
+              </span>
+              <span className="flex items-center">
+                <MdWork className="mr-1" />
+                {recentJob.jobType || "Job type not specified"}
+              </span>
+            </div>
+          </Link>
+        ))}
+      </div>
+    ) : (
+      <p className="text-center text-gray-600 dark:text-gray-400">
+        No recent jobs found at the moment.
+      </p>
+    )}
+  </div>
   );
 
   return (
@@ -682,29 +613,85 @@ const JobDetails = ({ job, errorCode }) => {
 
 export async function getServerSideProps(context) {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/jobs/${context.params.id}`);
-    
-    if (!res.ok) {
-      return {
-        props: {
-          errorCode: res.status,
-          job: null
-        }
-      };
+    await dbConnect();
+    const { id } = context.params;
+
+    // Fetch main job
+    const job = await Job.findById(id).lean();
+    if (!job) {
+      return { props: { errorCode: 404 } };
     }
 
-    const data = await res.json();
+    // Helper function to safely convert dates
+    const safeDate = (date) => {
+      if (!date) return null;
+      try {
+        return new Date(date).toISOString();
+      } catch {
+        return null;
+      }
+    };
+
+    // Serialize job with safe date handling
+    const serializedJob = {
+      ...job,
+      _id: job._id.toString(),
+      createdAt: safeDate(job.createdAt),
+      updatedAt: safeDate(job.updatedAt),
+      expiryDate: safeDate(job.expiryDate),
+      skills: job.skills || [],
+      location: job.location || [],
+      benefits: job.benefits || [],
+      recruiterContact: job.recruiterContact ? {
+        email: job.recruiterContact.email || null,
+        phone: job.recruiterContact.phone || null
+      } : null
+    };
+
+    // Fetch similar jobs
+    const similarJobs = await Job.find({
+      _id: { $ne: id },
+      $or: [
+        { niche: job.niche },
+        { skills: { $in: job.skills } },
+        { industry: job.industry }
+      ],
+    })
+    .limit(4)
+    .select('title companyName location jobType companyLogo _id createdAt')
+    .lean();
+
+    // Fetch recent jobs
+    const recentJobs = await Job.find()
+      .sort({ _id: -1 })
+      .limit(4)
+      .select('title companyName location jobType companyLogo _id createdAt')
+      .lean();
+
+    // Serialization function for arrays
+    const serializeJobs = (jobs) => jobs.map(job => ({
+      ...job,
+      _id: job._id.toString(),
+      createdAt: safeDate(job.createdAt),
+      location: job.location || [],
+      companyLogo: job.companyLogo || null
+    }));
 
     return {
       props: {
-        job: data.job,
+        job: serializedJob,
+        similarJobs: serializeJobs(similarJobs),
+        recentJobs: serializeJobs(recentJobs),
         errorCode: null
       }
     };
   } catch (error) {
+    console.error('Error in getServerSideProps:', error);
     return {
       props: {
         job: null,
+        similarJobs: [],
+        recentJobs: [],
         errorCode: 500
       }
     };
