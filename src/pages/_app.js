@@ -20,17 +20,19 @@ function AppContent({ Component, pageProps }) {
     <>
       <Head>
         {/* Set the favicon */}
+        <meta name="google-adsense-account" content="ca-pub-8413438270446322"></meta>
         <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
         <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
         <title>Vitamin Job</title>
       </Head>
 
-      {/* Google AdSense Script for verification */}
-        <Script
-              async 
-              src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8413438270446322"
-              crossorigin="anonymous"
-            />
+      <Script
+        strategy="afterInteractive"
+        async
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8413438270446322"
+        crossOrigin="anonymous"
+        onLoad={() => console.log("AdSense script loaded")}
+      />
 
       <Layout>
         <Component {...pageProps} />
@@ -60,3 +62,4 @@ function MyApp(props) {
 }
 
 export default MyApp;
+git 
