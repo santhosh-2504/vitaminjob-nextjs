@@ -46,7 +46,7 @@ const Navbar = () => {
                 ACTIVE JOBS
               </Link>
               <Link 
-                href="/roadmaps" 
+                href="/resources" 
                 className="text-gray-800 dark:text-gray-100 hover:text-gray-900 dark:hover:text-white"
               >
                 RESOURCES
@@ -120,7 +120,7 @@ const Navbar = () => {
              ACTIVE JOBS
             </Link>
             <Link 
-              href="/roadmaps"
+              href="/resources"
               className="text-gray-800 dark:text-gray-100 hover:text-gray-900 dark:hover:text-white"
               onClick={() => setShow(false)}
             >
