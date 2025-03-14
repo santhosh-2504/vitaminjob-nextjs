@@ -11,10 +11,8 @@ import {
   FaGift,
   FaLaptopHouse,
   FaTags,
-  FaStar,
   FaCalendarAlt,
 } from "react-icons/fa";
-import Script from "next/script";
 
 // SEO helper functions
 const generateMetaDescription = (selectedCity, selectedNiche, searchKeyword, totalJobs = 0) => {

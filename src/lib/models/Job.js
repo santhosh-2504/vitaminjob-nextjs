@@ -86,6 +86,7 @@ const jobSchema = mongoose.Schema({
   },
   slug : {
     type : String,
+    required : true //add posting date as a string at the end like 14-03-2024 to be unique
   }
 }, { timestamps: true });
 
