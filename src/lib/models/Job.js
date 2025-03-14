@@ -84,6 +84,9 @@ const jobSchema = mongoose.Schema({
     email: { type: String },
     phone: { type: String }
   },
+  slug : {
+    type : String,
+  }
 }, { timestamps: true });
 
 export const Job = mongoose.models.Job || mongoose.model("Job", jobSchema);

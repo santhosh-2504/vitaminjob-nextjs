@@ -63,8 +63,8 @@ const JobDetails = ({ job, similarJobs, recentJobs, errorCode }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {similarJobs.map((similarJob) => (
             <Link
-              href={`/jobs/${similarJob._id}`}
-              key={similarJob._id}
+              href={`/jobs/${similarJob.slug}`}
+              key={similarJob.slug}
               className="border dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow block"
             >
               <div className="flex items-start mb-2">
@@ -114,8 +114,8 @@ const JobDetails = ({ job, similarJobs, recentJobs, errorCode }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {recentJobs.map((recentJob) => (
           <Link
-            href={`/jobs/${recentJob._id}`}
-            key={recentJob._id}
+            href={`/jobs/${recentJob.slug}`}
+            key={recentJob.slug}
             className="border dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow block"
           >
             <div className="flex items-start mb-2">
@@ -683,10 +683,10 @@ const JobDetails = ({ job, similarJobs, recentJobs, errorCode }) => {
 export async function getServerSideProps(context) {
   try {
     await dbConnect();
-    const { id } = context.params;
+    const { slug } = context.params;
 
-    // Fetch main job
-    const job = await Job.findById(id).lean();
+    // Fetch main job using slug
+    const job = await Job.findOne({ slug }).lean();
     if (!job) {
       return { props: { errorCode: 404 } };
     }
@@ -711,62 +711,66 @@ export async function getServerSideProps(context) {
       skills: job.skills || [],
       location: job.location || [],
       benefits: job.benefits || [],
-      recruiterContact: job.recruiterContact ? {
-        email: job.recruiterContact.email || null,
-        phone: job.recruiterContact.phone || null
-      } : null
+      recruiterContact: job.recruiterContact
+        ? {
+            email: job.recruiterContact.email || null,
+            phone: job.recruiterContact.phone || null,
+          }
+        : null,
     };
 
     // Fetch similar jobs
     const similarJobs = await Job.find({
-      _id: { $ne: id },
+      slug: { $ne: slug }, // Exclude current job
       $or: [
         { niche: job.niche },
         { skills: { $in: job.skills } },
-        { industry: job.industry }
+        { industry: job.industry },
       ],
     })
-    .limit(4)
-    .select('title companyName location jobType companyLogo _id createdAt')
-    .lean();
+      .limit(4)
+      .select("title companyName location jobType companyLogo slug createdAt")
+      .lean();
 
     // Fetch recent jobs
     const recentJobs = await Job.find({
-      _id : {$ne : id}
+      slug: { $ne: slug },
     })
       .sort({ _id: -1 })
       .limit(4)
-      .select('title companyName location jobType companyLogo _id createdAt')
+      .select("title companyName location jobType companyLogo slug createdAt")
       .lean();
 
     // Serialization function for arrays
-    const serializeJobs = (jobs) => jobs.map(job => ({
-      ...job,
-      _id: job._id.toString(),
-      createdAt: safeDate(job.createdAt),
-      location: job.location || [],
-      companyLogo: job.companyLogo || null
-    }));
+    const serializeJobs = (jobs) =>
+      jobs.map((job) => ({
+        ...job,
+        _id: job._id.toString(),
+        createdAt: safeDate(job.createdAt),
+        location: job.location || [],
+        companyLogo: job.companyLogo || null,
+      }));
 
     return {
       props: {
         job: serializedJob,
         similarJobs: serializeJobs(similarJobs),
         recentJobs: serializeJobs(recentJobs),
-        errorCode: null
-      }
+        errorCode: null,
+      },
     };
   } catch (error) {
-    console.error('Error in getServerSideProps:', error);
+    console.error("Error in getServerSideProps:", error);
     return {
       props: {
         job: null,
         similarJobs: [],
         recentJobs: [],
-        errorCode: 500
-      }
+        errorCode: 500,
+      },
     };
   }
 }
+
 
 export default JobDetails;

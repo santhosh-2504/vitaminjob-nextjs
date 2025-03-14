@@ -275,11 +275,11 @@ const Jobs = ({
   };
 
   // When a user clicks on a job, save the scroll position and navigate to the details page.
-  const handleViewDetails = (jobId) => {
+  const handleViewDetails = (slug) => {
     if (typeof window !== "undefined") {
       localStorage.setItem("jobsScrollPosition", window.scrollY.toString());
     }
-    router.push(`/jobs/${jobId}`);
+    router.push(`/jobs/${slug}`);
   };
 
   return (
@@ -545,7 +545,7 @@ const Jobs = ({
                             </div>
                             <div className="flex space-x-3">
                               <button
-                                onClick={() => handleViewDetails(job._id)}
+                                onClick={() => handleViewDetails(job.slug)}
                                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
                               >
                                 View Details
