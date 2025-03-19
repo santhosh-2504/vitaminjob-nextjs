@@ -1,5 +1,6 @@
 import { ToastContainer } from "react-toastify";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import { store } from "@/store/store";
 import { getUser } from "@/store/slices/userSlice";
 import Layout from "@/components/Layout/index";
@@ -8,13 +9,32 @@ import Head from "next/head"; // Import Head for favicon and AdSense
 import Script from "next/script"; // Import Next.js Script for optimized loading
 import "@/styles/globals.css";
 import "react-toastify/dist/ReactToastify.css";
+import { FaSpinner } from "react-icons/fa"; // Import spinner icon
 
 // Wrapper component to use hooks
 function AppContent({ Component, pageProps }) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false); // State to track loading
+
   useEffect(() => {
     // Check auth state when app loads
     store.dispatch(getUser());
-  }, []);
+
+    // Show spinner on route change start
+    const handleRouteChangeStart = () => setLoading(true);
+    // Hide spinner on route change complete
+    const handleRouteChangeComplete = () => setLoading(false);
+
+    router.events.on("routeChangeStart", handleRouteChangeStart);
+    router.events.on("routeChangeComplete", handleRouteChangeComplete);
+    router.events.on("routeChangeError", handleRouteChangeComplete);
+
+    return () => {
+      router.events.off("routeChangeStart", handleRouteChangeStart);
+      router.events.off("routeChangeComplete", handleRouteChangeComplete);
+      router.events.off("routeChangeError", handleRouteChangeComplete);
+    };
+  }, [router.events]);
 
   return (
     <>
@@ -33,6 +53,13 @@ function AppContent({ Component, pageProps }) {
         crossOrigin="anonymous"
         onLoad={() => console.log("AdSense script loaded")}
       />
+
+      {/* Global Loading Spinner */}
+      {loading && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-900 z-50">
+          <FaSpinner className="animate-spin text-blue-600 text-4xl" />
+        </div>
+      )}
 
       <Layout>
         <Component {...pageProps} />

@@ -165,9 +165,6 @@ export async function getServerSideProps(context) {
       ];
     }
 
-    // Add console.log to debug
-    console.log('Query Object:', queryObj);
-
     const totalJobs = await Job.countDocuments(queryObj);
     const skip = (currentPage - 1) * limit;
     
@@ -177,9 +174,6 @@ export async function getServerSideProps(context) {
       .limit(limit)
       .sort({ createdAt: -1 })
       .lean();
-
-    // Add console.log to debug
-    console.log('Found Jobs:', jobs.length);
 
     return {
       props: {
