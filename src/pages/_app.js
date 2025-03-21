@@ -46,12 +46,28 @@ function AppContent({ Component, pageProps }) {
         <title>Vitamin Job</title>
       </Head>
 
+      {/* Google Analytics */}
+      <Script
+        strategy="afterInteractive"
+        src="https://www.googletagmanager.com/gtag/js?id=G-GBLM3VR7LL"
+      />
+      <Script
+        id="google-analytics"
+        strategy="afterInteractive"
+      >
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-GBLM3VR7LL', { 'anonymize_ip': true });
+        `}
+      </Script>
+
       <Script
         strategy="afterInteractive"
         async
         src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8413438270446322"
         crossOrigin="anonymous"
-        onLoad={() => console.log("AdSense script loaded")}
       />
 
       {/* Global Loading Spinner */}
