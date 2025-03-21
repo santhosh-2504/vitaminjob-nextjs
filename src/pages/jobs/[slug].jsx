@@ -7,6 +7,7 @@ import Error from "next/error";
 import Link from "next/link";
 import dbConnect from "@/lib/dbConnect";
 import { Job } from "@/lib/models/Job";
+import { NextSeo } from 'next-seo';
 
 const JobDetails = ({ job, similarJobs, recentJobs, errorCode }) => {
   const router = useRouter();
@@ -159,11 +160,46 @@ const JobDetails = ({ job, similarJobs, recentJobs, errorCode }) => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-      <div className="max-w-6xl mx-auto px-4 py-16 dark:text-white">
-        {/* Navigation */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-          <div className="lg:col-span-3">
+    <>
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+        <NextSeo
+          title={`${job.title} | ${job.companyName}`}
+          description={job.shortDescription || job.lengthyDescription?.substring(0, 160) || "Explore this job opportunity on our platform"}
+          canonical={`https://www.vitaminjob.com/jobs/${job.slug}`}
+          openGraph={{
+            url: `https://www.vitaminjob.com/jobs/${job.slug}`,
+            title: `${job.title} | ${job.companyName}`,
+            description: job.shortDescription || job.lengthyDescription?.substring(0, 160) || "Explore this job opportunity",
+            images: [
+              {
+                url: job.companyLogo || '/default-job-image.jpg',
+                width: 800,
+                height: 600,
+                alt: `${job.companyName} logo`,
+              }
+            ],
+            siteName: 'Vitamin Job',
+          }}
+          twitter={{
+            handle: '@vitaminjob',
+            site: '@vitaminjob',
+            cardType: 'summary_large_image',
+          }}
+          additionalMetaTags={[
+            {
+              name: 'keywords',
+              content: job.keywords?.join(', ') || job.skills?.join(', ') || 'jobs, career, employment'
+            },
+            {
+              name: 'application-deadline',
+              content: job.expiryDate || ''
+            }
+          ]}
+        />
+        <div className="max-w-6xl mx-auto px-4 py-16 dark:text-white">
+          {/* Navigation */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+            <div className="lg:col-span-3">
             <button
               onClick={handleBack}
               className="mb-6 flex items-center text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
@@ -677,6 +713,7 @@ const JobDetails = ({ job, similarJobs, recentJobs, errorCode }) => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
