@@ -5,24 +5,22 @@ import { store } from "@/store/store";
 import { getUser } from "@/store/slices/userSlice";
 import Layout from "@/components/Layout/index";
 import { AppProvider } from "@/store/provider";
-import Head from "next/head"; // Import Head for favicon and AdSense
-import Script from "next/script"; // Import Next.js Script for optimized loading
+import { CookiesProvider } from "react-cookie";
+import Head from "next/head";
+import Script from "next/script";
 import "@/styles/globals.css";
 import "react-toastify/dist/ReactToastify.css";
-import { FaSpinner } from "react-icons/fa"; // Import spinner icon
+import { FaSpinner } from "react-icons/fa";
+import CookieConsent from "@/components/CookieConsent"; // Import the CookieConsent component
 
-// Wrapper component to use hooks
 function AppContent({ Component, pageProps }) {
   const router = useRouter();
-  const [loading, setLoading] = useState(false); // State to track loading
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Check auth state when app loads
     store.dispatch(getUser());
 
-    // Show spinner on route change start
     const handleRouteChangeStart = () => setLoading(true);
-    // Hide spinner on route change complete
     const handleRouteChangeComplete = () => setLoading(false);
 
     router.events.on("routeChangeStart", handleRouteChangeStart);
@@ -46,23 +44,7 @@ function AppContent({ Component, pageProps }) {
         <title>Vitamin Job</title>
       </Head>
 
-      {/* Google Analytics */}
-      <Script
-        strategy="afterInteractive"
-        src="https://www.googletagmanager.com/gtag/js?id=G-GBLM3VR7LL"
-      />
-      <Script
-        id="google-analytics"
-        strategy="afterInteractive"
-      >
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'G-GBLM3VR7LL', { 'anonymize_ip': true });
-        `}
-      </Script>
-
+      {/* AdSense Script */}
       <Script
         strategy="afterInteractive"
         async
@@ -92,14 +74,19 @@ function AppContent({ Component, pageProps }) {
           theme="light" 
         />
       </Layout>
+
+      {/* Cookie Consent Banner */}
+      <CookieConsent />
     </>
   );
 }
 
 function MyApp(props) {
   return (
-    <AppProvider> {/* Use the combined provider */}
+    <AppProvider>
+      <CookiesProvider>
       <AppContent {...props} />
+      </CookiesProvider>
     </AppProvider>
   );
 }
