@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import {
   FaMapMarkerAlt,
   FaMoneyBillWave,
@@ -84,47 +84,29 @@ const sanitizeJSON = (data) => {
 
 // City variations mapping (if needed later)
 const cityVariations = {
-  bangalore: ["bangalore", "bengaluru", "banglore", "bengalooru", "bengaluru karnataka", "bangalore karnataka"],
-  mumbai: ["mumbai", "bombay", "mumbai maharashtra", "bombay maharashtra"],
-  delhi: ["delhi", "new delhi", "delhi ncr", "new delhi india"],
-  pune: ["pune", "poona", "pune maharashtra"],
-  hyderabad: ["hyderabad", "hyderbad", "hyderabad telangana"],
-  chennai: ["chennai", "madras", "chennai tamil nadu"],
-  kolkata: ["kolkata", "calcutta", "kolkata west bengal"],
-  noida: ["noida", "noida uttar pradesh", "noida up", "gautam buddha nagar"],
-  gurugram: ["gurugram", "gurgaon", "gurgaon haryana", "gurugram haryana"],
   ahmedabad: ["ahmedabad", "ahmedabad gujarat"],
-  thiruvananthapuram: ["thiruvananthapuram", "trivandrum"],
-  coimbatore: ["coimbatore", "kovai"],
-  kochi: ["kochi", "cochin"],
-  indore: ["indore", "indore madhya pradesh"],
-  nagpur: ["nagpur", "nagpur maharashtra"],
-  jaipur: ["jaipur", "jaipur rajasthan"],
-  lucknow: ["lucknow", "lucknow uttar pradesh"],
-  visakhapatnam: ["visakhapatnam", "vizag", "visakhapatnam andhra pradesh"],
-  mysuru: ["mysuru", "mysore"],
+  bangalore: ["bangalore", "bengaluru", "banglore", "bengalooru", "bengaluru karnataka", "bangalore karnataka"],
   bhubaneswar: ["bhubaneswar", "bhubaneswar odisha"],
+  chennai: ["chennai", "madras", "chennai tamil nadu"],
+  coimbatore: ["coimbatore", "kovai"],
+  delhi: ["delhi", "new delhi", "delhi ncr", "new delhi india"],
+  gurugram: ["gurugram", "gurgaon", "gurgaon haryana", "gurugram haryana"],
+  hyderabad: ["hyderabad", "hyderbad", "hyderabad telangana"],
+  indore: ["indore", "indore madhya pradesh"],
+  jaipur: ["jaipur", "jaipur rajasthan"],
+  kochi: ["kochi", "cochin"],
+  kolkata: ["kolkata", "calcutta", "kolkata west bengal"],
+  lucknow: ["lucknow", "lucknow uttar pradesh"],
+  mumbai: ["mumbai", "bombay", "mumbai maharashtra", "bombay maharashtra"],
+  mysuru: ["mysuru", "mysore"],
+  nagpur: ["nagpur", "nagpur maharashtra"],
+  noida: ["noida", "noida uttar pradesh", "noida up", "gautam buddha nagar"],
+  pune: ["pune", "poona", "pune maharashtra"],
+  thiruvananthapuram: ["thiruvananthapuram", "trivandrum"],
   vadodara: ["vadodara", "baroda"],
+  visakhapatnam: ["visakhapatnam", "vizag", "visakhapatnam andhra pradesh"],
 };
 
-// Industry options
-const industryOptions = [
-  "Technology",
-  "Healthcare",
-  "Finance",
-  "Education",
-  "Manufacturing",
-  "Retail",
-  "Media",
-  "Energy",
-  "Transportation",
-  "Hospitality",
-  "Construction",
-  "Agriculture",
-  "Government",
-  "Non-profit",
-  "Other"
-];
 
 // -------------------
 // Server-side Data Fetching
