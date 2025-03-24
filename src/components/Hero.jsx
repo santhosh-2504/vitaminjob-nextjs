@@ -2,11 +2,14 @@ import Link from 'next/link';
 import { useSelector } from 'react-redux';
 import { ArrowRight, Pill, Target, LineChart } from 'lucide-react';
 import PropTypes from 'prop-types';
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 
-const FeatureCard = ({ icon: Icon, title, description }) => (
+const FeatureCard = ({ icon: Icon, title, description, onClick, className }) => (
   <div 
-    className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 transform transition-transform duration-300 hover:scale-105 hover:bg-gray-100 dark:hover:bg-gray-700"
+    className={`bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 transform transition-transform duration-300 hover:scale-105 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer ${className}`}
     role="article"
+    onClick={onClick}
   >
     <div className="text-blue-600 text-4xl mb-4 flex justify-center">
       <Icon className="w-8 h-8" aria-hidden="true" />
@@ -23,11 +26,45 @@ const FeatureCard = ({ icon: Icon, title, description }) => (
 FeatureCard.propTypes = {
   icon: PropTypes.elementType.isRequired,
   title: PropTypes.string.isRequired,
-  description: PropTypes.string.isRequired
+  description: PropTypes.string.isRequired,
+  onClick: PropTypes.func,
+  className: PropTypes.string
 };
 
 const Hero = ({ className = '' }) => {
-  const { isAuthenticated } = useSelector((state) => state.user);
+  const { isAuthenticated, user } = useSelector((state) => state.user);
+  const router = useRouter();
+
+  const handleCardClick = (title) => {
+    switch (title) {
+      case "Daily Career Boost":
+        router.push('/jobs');
+        break;
+      case "Precision Matching":
+        if (!isAuthenticated) {
+          toast.error("Please log in to view your opportunities");
+          router.push('/login');
+        } else {
+          const preferences = [user.firstNiche, user.secondNiche, user.thirdNiche]
+            .filter(Boolean) // Remove empty preferences
+            .map(niche => niche.trim()) // Remove any whitespace
+            .join(',');
+          
+          if (preferences) {
+            router.push(`/jobs?niche=${preferences}&page=1`);
+          } else {
+            toast.warning("Please update your preferences to view opportunities");
+            router.push('/dashboard');
+          }
+        }
+        break;
+      case "Career Wellness":
+        router.push('/resources');
+        break;
+      default:
+        break;
+    }
+  };
 
   return (
     <section 
@@ -76,16 +113,19 @@ const Hero = ({ className = '' }) => {
               icon={Pill}
               title="Daily Career Boost"
               description="Your daily supplement of hand-picked job opportunities to energize your professional growth"
+              onClick={() => handleCardClick("Daily Career Boost")}
             />
             <FeatureCard
               icon={Target}
               title="Precision Matching"
               description="Carefully formulated job matches that align with your career DNA"
+              onClick={() => handleCardClick("Precision Matching")}
             />
             <FeatureCard
               icon={LineChart}
               title="Career Wellness"
               description="Complete nutrition for your career with tools and resources for long-term success"
+              onClick={() => handleCardClick("Career Wellness")}
             />
           </div>
         </div>

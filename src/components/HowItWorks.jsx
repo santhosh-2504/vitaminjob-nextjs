@@ -1,15 +1,20 @@
 import { LuUserPlus } from "react-icons/lu";
 import { VscTasklist } from "react-icons/vsc";
 import { BiSolidLike } from "react-icons/bi";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 const HowItWorks = () => {
+  const { user, isAuthenticated } = useSelector((state) => state.user);
+  const router = useRouter();
   const steps = [
     {
       id: 1,
       title: "Boost Your Profile",
       icon: <LuUserPlus />,
       description:
-        "Create your career health profile and let us understand your professional nutrition needs.",
+        "Update your preferences and let us understand your professional nutrition needs.",
     },
     {
       id: 2,
@@ -50,8 +55,31 @@ const HowItWorks = () => {
           {steps.map((step) => (
             <div
               key={step.id}
-              className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 transform transition-transform duration-300 hover:scale-105 hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 transform transition-transform duration-300 hover:scale-105 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
               role="listitem"
+              onClick={() => {
+                if (step.title === "Boost Your Profile") {
+                  if (user && isAuthenticated) {
+                    router.push('/dashboard');
+                  } else {
+                    toast.error("Please log in to boost your profile");
+                    router.push('/login');
+                  }
+                } else if (step.title === "Get Your Daily Dose") {
+                  if (!user || !isAuthenticated) {
+                    toast.error("Please log in to view your opportunities");
+                    router.push('/login');
+                  } else if (!user.firstNiche && !user.secondNiche && !user.thirdNiche) {
+                    toast.warning("Please update your preferences to view opportunities");
+                    router.push('/dashboard');
+                  } else {
+                    const preferences = [user.firstNiche, user.secondNiche, user.thirdNiche]
+                      .filter(Boolean)
+                      .join(',');
+                    router.push(`/jobs?niche=${preferences}&page=1`);
+                  }
+                }
+              }}
             >
               <div 
                 className="text-blue-500 text-4xl mb-4 flex justify-center"

@@ -152,9 +152,10 @@ export async function getServerSideProps(context) {
       queryObj.location = { $in: cityVariants.map(variant => new RegExp(variant, "i")) }; // Case-insensitive match
     }
 
-    // Niche filter (already working)
+    // Niche filter (updated to support multiple niches)
     if (selectedNiche && selectedNiche !== "All") {
-      queryObj.niche = { $regex: new RegExp(`^${selectedNiche}$`, "i") };
+      const niches = selectedNiche.split(',').map(niche => niche.trim());
+      queryObj.niche = { $in: niches };
     }
 
     // Keyword search (already working)
