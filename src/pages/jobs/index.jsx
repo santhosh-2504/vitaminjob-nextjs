@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -13,7 +13,6 @@ import {
   FaTags,
   FaCalendarAlt,
 } from "react-icons/fa";
-
 // SEO helper functions
 const generateMetaDescription = (selectedCity, selectedNiche, searchKeyword, totalJobs = 0) => {
   let description = `Browse ${totalJobs} open positions`;
@@ -147,13 +146,18 @@ export async function getServerSideProps(context) {
     
     const queryObj = {};
     
-    // Match the API query structure
+    // Match city filter with variations
     if (selectedCity && selectedCity !== "All") {
-      queryObj.location = selectedCity; // Changed from location.0
+      const cityVariants = cityVariations[selectedCity.toLowerCase()] || [selectedCity]; // Fallback to selectedCity if not in map
+      queryObj.location = { $in: cityVariants.map(variant => new RegExp(variant, "i")) }; // Case-insensitive match
     }
+
+    // Niche filter (already working)
     if (selectedNiche && selectedNiche !== "All") {
-      queryObj.niche = selectedNiche;
+      queryObj.niche = { $regex: new RegExp(`^${selectedNiche}$`, "i") };
     }
+
+    // Keyword search (already working)
     if (searchKeyword) {
       queryObj.$or = [
         { title: { $regex: searchKeyword, $options: "i" } },
@@ -188,7 +192,6 @@ export async function getServerSideProps(context) {
       },
     };
   } catch (error) {
-    console.error('Error in getServerSideProps:', error);
     return {
       props: {
         initialSelectedCity: selectedCity,
@@ -220,21 +223,56 @@ const Jobs = ({
   initialAppliedJobs,
 }) => {
   const router = useRouter();
-  const dispatch = useDispatch();
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
-
-  // Use the server-provided props directly.
-  const selectedCity = initialSelectedCity;
-  const selectedNiche = initialSelectedNiche;
-  const searchInput = initialSearchKeyword;
-  const currentPage = initialCurrentPage;
+  
+  // State for controlled inputs
+  const [searchInput, setSearchInput] = useState(initialSearchKeyword);
+  const [selectedCity, setSelectedCity] = useState(initialSelectedCity);
+  const [selectedNiche, setSelectedNiche] = useState(initialSelectedNiche);
+  
   const jobs = initialJobs;
   const totalPages = initialTotalPages;
   const totalJobs = initialTotalJobs;
   const appliedJobs = initialAppliedJobs;
+  const currentPage = initialCurrentPage;
 
-  // Get user data for bookmarks from Redux
   const { user } = useSelector((state) => state.user);
+
+  // Debouncing effect for search
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      updateQueryParams();
+    }, 500);
+
+    return () => clearTimeout(debounceTimer);
+  }, [searchInput, selectedCity, selectedNiche]);
+
+  // Update URL query params
+  const updateQueryParams = () => {
+    const query = {};
+    if (searchInput) query.q = searchInput;
+    if (selectedCity && selectedCity !== "All") query.city = selectedCity;
+    if (selectedNiche && selectedNiche !== "All") query.niche = selectedNiche;
+    query.page = 1; // Reset to first page on new search
+
+    router.push({
+      pathname: "/jobs",
+      query,
+    }, undefined, { shallow: false });
+  };
+
+  // Handle input changes
+  const handleSearchChange = (e) => {
+    setSearchInput(e.target.value);
+  };
+
+  const handleCityChange = (e) => {
+    setSelectedCity(e.target.value);
+  };
+
+  const handleNicheChange = (e) => {
+    setSelectedNiche(e.target.value);
+  };
 
   // Format date for display
   const formatDate = (dateString) => {
@@ -273,7 +311,6 @@ const Jobs = ({
     }
     router.push(`/jobs/${slug}`);
   };
-
   return (
     <>
       <Head>
@@ -285,9 +322,9 @@ const Jobs = ({
         <meta
           name="description"
           content={generateMetaDescription(
-            selectedCity, 
-            selectedNiche, 
-            searchInput, 
+            selectedCity,
+            selectedNiche,
+            searchInput,
             totalJobs
           )}
         />
@@ -301,14 +338,13 @@ const Jobs = ({
             __html: sanitizeJSON(generateJobListingSchema(jobs, baseUrl)),
           }}
         />
-        {/* Add Google AdSense script 
         <script
           data-ad-client="ca-pub-8413438270446322"
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
-        ></script>*/}
+        ></script>
       </Head>
-
+  
       <div className="bg-gray-100 dark:bg-gray-900 min-h-screen pt-16">
         {/* Hidden H1 for SEO purposes */}
         <h1 className="sr-only">
@@ -316,78 +352,71 @@ const Jobs = ({
             ? `${searchInput} Jobs ${selectedCity !== "All" ? `in ${selectedCity}` : ""}`
             : `Job Openings ${selectedCity !== "All" ? `in ${selectedCity}` : ""}`}
         </h1>
-
-        {/* Fixed Search Section – wrapped in a GET form for SSR */}
+  
         <div className="fixed top-16 left-0 right-0 z-10 bg-gray-100 dark:bg-gray-900 px-4 py-2">
           <div className="max-w-6xl mx-auto">
             <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-              <form method="GET" action="/jobs">
-                <div className="flex flex-col space-y-4">
-                  <div className="flex flex-col md:flex-row gap-4">
-                    <div className="flex-1">
-                      <label htmlFor="job-search" className="sr-only">
-                        Search jobs
-                      </label>
-                      <input
-                        id="job-search"
-                        name="q"
-                        type="text"
-                        placeholder="Search jobs, companies, skills, or keywords..."
-                        defaultValue={searchInput}
-                        className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        aria-label="Search jobs"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="city-filter" className="sr-only">
-                        Filter by city
-                      </label>
-                      <select
-                        id="city-filter"
-                        name="city"
-                        defaultValue={selectedCity}
-                        className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="All">All Cities</option>
-                        {Object.keys(cityVariations).map((city) => (
-                          <option key={city} value={city}>
-                            {city.charAt(0).toUpperCase() + city.slice(1)}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label htmlFor="niche-filter" className="sr-only">
-                        Filter by niche
-                      </label>
-                      <select
-                        id="niche-filter"
-                        name="niche"
-                        defaultValue={selectedNiche}
-                        className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="All">All Niches</option>
-                        <option value="Software">Software</option>
-                        <option value="Marketing">Marketing</option>
-                        <option value="Design">Design</option>
-                        <option value="Sales">Sales</option>
-                      </select>
-                    </div>
-                    <div>
-                      <button
-                        type="submit"
-                        className="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-                      >
-                        Search
-                      </button>
-                    </div>
+              <div className="flex flex-col space-y-4">
+                <div className="flex flex-col md:flex-row gap-4">
+                  <div className="flex-1">
+                    <label htmlFor="job-search" className="sr-only">
+                      Search jobs
+                    </label>
+                    <input
+                      id="job-search"
+                      name="q"
+                      type="text"
+                      placeholder="Search jobs, companies, skills, or keywords..."
+                      value={searchInput}
+                      onChange={handleSearchChange}
+                      className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      aria-label="Search jobs"
+                    />
                   </div>
+                  <div>
+                    <label htmlFor="city-filter" className="sr-only">
+                      Filter by city
+                    </label>
+                    <select
+                      id="city-filter"
+                      name="city"
+                      value={selectedCity}
+                      onChange={handleCityChange}
+                      className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="All">All Cities</option>
+                      {Object.keys(cityVariations).map((city) => (
+                        <option key={city} value={city}>
+                          {city.charAt(0).toUpperCase() + city.slice(1)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="niche-filter" className="sr-only">
+                      Filter by niche
+                    </label>
+                    <select id="niche-filter" 
+                            name="niche" 
+                            value={selectedNiche} 
+                            onChange={handleNicheChange}
+                            className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                      <option value="All">All Niches</option>
+                      <option value="Software Development">Software Development</option>
+                      <option value="Cloud Computing">Cloud Computing</option>
+                      <option value="Artificial Intelligence">Artificial Intelligence</option>
+                      <option value="Web Development">Web Development</option>
+                      <option value="Data Science">Data Science</option>
+                      <option value="DevOps">DevOps</option>
+                    </select>
+                   </div>
                 </div>
-              </form>
+              </div>
             </div>
           </div>
         </div>
-
+  
         {/* Main Content */}
         <div className="container mx-auto px-6 pb-4 pt-64 max-w-7xl md:pt-36">
           <div className="grid grid-cols-12 gap-4">
@@ -395,7 +424,7 @@ const Jobs = ({
             <div className="hidden lg:block lg:col-span-2">
               <div className="sticky top-44 bg-white dark:bg-gray-800" />
             </div>
-
+  
             {/* Job Listings */}
             <div className="col-span-12 lg:col-span-8">
               <div className="mb-6 flex justify-between items-center">
@@ -410,7 +439,7 @@ const Jobs = ({
                   </Link>
                 )}
               </div>
-
+  
               {jobs.length > 0 ? (
                 <>
                   <div className="space-y-6" aria-label="Job listings" aria-live="polite">
@@ -453,11 +482,11 @@ const Jobs = ({
                               </div>
                             </div>
                           </div>
-
+  
                           <p className="text-gray-600 dark:text-gray-300 mb-6 line-clamp-2" itemProp="description">
                             {job.shortDescription || "No description available"}
                           </p>
-
+  
                           {/* Job details grid */}
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                             <div className="flex items-center text-gray-600 dark:text-gray-400">
@@ -475,14 +504,13 @@ const Jobs = ({
                               <FaBriefcase className="mr-2 text-purple-500" />
                               <dd itemProp="employmentType">{job.jobType || "Full Time"}</dd>
                             </div>
-                            
                             <div className="flex items-center text-gray-600 dark:text-gray-400">
                               <dt className="sr-only">Remote Option</dt>
                               <FaLaptopHouse className="mr-2 text-indigo-500" />
                               <dd>{job.remoteOption ? "Remote Available" : "On-site"}</dd>
                             </div>
                           </div>
-
+  
                           {/* Skills and Tags */}
                           {job.skills && job.skills.length > 0 && (
                             <div className="mb-4">
@@ -502,19 +530,19 @@ const Jobs = ({
                               </div>
                             </div>
                           )}
-
+  
                           {/* Job Benefits */}
                           {job.benefits && job.benefits.length > 0 && (
                             <div className="mb-4">
                               <div className="flex items-center mb-2">
-                                <FaGift className="text-pink-500 mr-2" />
+                                <FaGift className="text-blue-500 mr-2" />
                                 <span className="text-gray-700 dark:text-gray-300 font-medium">Benefits:</span>
                               </div>
                               <div className="flex flex-wrap gap-2">
                                 {job.benefits.map((benefit, index) => (
                                   <span
                                     key={index}
-                                    className="bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200 text-sm px-3 py-1 rounded-full"
+                                    className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm px-3 py-1 rounded-full"
                                   >
                                     {benefit}
                                   </span>
@@ -522,7 +550,7 @@ const Jobs = ({
                               </div>
                             </div>
                           )}
-
+  
                           {/* Footer with dates and action buttons */}
                           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pt-4 border-t border-gray-200 dark:border-gray-700">
                             <div className="flex items-center space-x-4 mb-4 sm:mb-0">
@@ -548,7 +576,7 @@ const Jobs = ({
                       </article>
                     ))}
                   </div>
-
+  
                   {/* Pagination */}
                   {totalPages > 1 && (
                     <div className="mt-8 flex justify-center">
@@ -603,7 +631,7 @@ const Jobs = ({
                 </div>
               )}
             </div>
-
+  
             {/* Right sidebar for ads */}
             <div className="hidden lg:block lg:col-span-2">
               <div className="sticky top-44 bg-white dark:bg-gray-800" />
