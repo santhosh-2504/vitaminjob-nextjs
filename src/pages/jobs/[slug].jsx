@@ -15,7 +15,7 @@ const JobDetails = ({ job, similarJobs, recentJobs, errorCode }) => {
   const { isAuthenticated } = useSelector((state) => state.user);
 
   const handleBack = () => {
-    router.back();
+    router.push('/jobs');
   };
 
   const handleApply = () => {
