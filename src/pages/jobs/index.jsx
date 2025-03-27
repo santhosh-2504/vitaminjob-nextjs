@@ -27,55 +27,54 @@ const generateMetaDescription = (selectedCity, selectedNiche, searchKeyword, tot
   return description + ". Find your next career opportunity with us.";
 };
 
-const generateJobListingSchema = (jobs, baseUrl) => {
-  const jobListings = jobs.map((job) => ({
-    "@context": "https://schema.org",
+const generateJobListingSchema = (jobs, baseUrl) => ({
+  "@context": "https://schema.org",
+  "@type": "JobPostingCollection",
+  "itemListElement": jobs.map((job) => ({
     "@type": "JobPosting",
     "@id": `${baseUrl}/jobs/${job.slug}`,
-    title: job.title,
-    description: job.shortDescription,
-    employmentType: job.jobType,
-    datePosted: new Date(job.createdAt).toISOString(), // Ensure ISO 8601 format
-    validThrough: job.expiryDate ? new Date(job.expiryDate).toISOString() : null, // Ensure ISO 8601 format
-    hiringOrganization: {
+    "title": job.title,
+    "description": job.shortDescription,
+    "employmentType": job.jobType,
+    "datePosted": new Date(job.createdAt).toISOString(),
+    "validThrough": job.expiryDate ? new Date(job.expiryDate).toISOString() : null,
+    "hiringOrganization": {
       "@type": "Organization",
-      name: job.companyName,
-      sameAs: job.companyWebsite || baseUrl,
-      logo: job.companyLogo,
-      description: job.companyDescription,
+      "name": job.companyName,
+      "sameAs": job.companyWebsite || baseUrl,
+      "logo": job.companyLogo,
+      "description": job.companyDescription,
     },
-    jobLocation: {
+    "jobLocation": {
       "@type": "Place",
-      address: {
+      "address": {
         "@type": "PostalAddress",
-        addressLocality: job.location ? job.location[0] : "",
-        addressRegion: job.location && job.location.length > 1 ? job.location[1] : "",
-        addressCountry: "IN",
+        "addressLocality": job.location ? job.location[0] : "",
+        "addressRegion": job.location && job.location.length > 1 ? job.location[1] : "",
+        "addressCountry": "IN",
       },
     },
-    baseSalary: {
+    "baseSalary": {
       "@type": "MonetaryAmount",
-      currency: "INR",
-      value: {
+      "currency": "INR",
+      "value": {
         "@type": "QuantitativeValue",
-        value: job.salary,
-        unitText: "YEAR",
+        "value": job.salary,
+        "unitText": "YEAR",
       },
     },
-    skills: job.skills ? job.skills.join(", ") : "",
-    experienceRequirements: job.experienceLevel,
-    industry: job.industry,
-    jobBenefits: job.benefits ? job.benefits.join(", ") : "",
-    applicantLocationRequirements: job.remoteOption ? "Remote" : "On-site",
-    keywords: job.keywords ? job.keywords.join(", ") : "",
-  }));
-
-  return jobListings;
-};
+    "skills": job.skills ? job.skills.join(", ") : "",
+    "experienceRequirements": job.experienceLevel,
+    "industry": job.industry,
+    "jobBenefits": job.benefits ? job.benefits.join(", ") : "",
+    "applicantLocationRequirements": job.remoteOption ? "Remote" : "On-site",
+    "keywords": job.keywords ? job.keywords.join(", ") : "",
+  }))
+});
 
 // Simple JSON sanitization for inline scripts
 const sanitizeJSON = (data) => {
-  return JSON.stringify(data)
+  return JSON.stringify(data, null, 2)  // Add indentation for readability
     .replace(/</g, "\\u003c")
     .replace(/>/g, "\\u003e")
     .replace(/&/g, "\\u0026")
