@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useSelector } from "react-redux";
 import {
   FaMapMarkerAlt,
   FaMoneyBillWave,
@@ -70,6 +69,7 @@ const generateJobListingSchema = (jobs, baseUrl) => {
     applicantLocationRequirements: job.remoteOption ? "Remote" : "On-site",
     keywords: job.keywords ? job.keywords.join(", ") : "",
   }));
+  
   return jobListings;
 };
 
@@ -203,7 +203,6 @@ const Jobs = ({
   initialJobs,
   initialTotalPages,
   initialTotalJobs,
-  initialAppliedJobs,
 }) => {
   const router = useRouter();
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
@@ -216,10 +215,10 @@ const Jobs = ({
   const jobs = initialJobs;
   const totalPages = initialTotalPages;
   const totalJobs = initialTotalJobs;
-  const appliedJobs = initialAppliedJobs;
   const currentPage = initialCurrentPage;
 
-  const { user } = useSelector((state) => state.user);
+  // Generate structured data for job listings
+  const jobListingSchema = generateJobListingSchema(initialJobs, baseUrl);
 
   // Debouncing effect for search
   useEffect(() => {
@@ -315,17 +314,12 @@ const Jobs = ({
         <meta name="google" content="nositelinkssearchbox" />
         <meta name="google" content="notranslate" />
         <link rel="canonical" href={generateCanonicalUrl()} />
+
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: sanitizeJSON(generateJobListingSchema(jobs, baseUrl)),
-          }}
+          dangerouslySetInnerHTML={{ __html: sanitizeJSON(jobListingSchema) }}
         />
-        <script
-          data-ad-client="ca-pub-8413438270446322"
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
-        ></script>
+        
       </Head>
   
       <div className="bg-gray-100 dark:bg-gray-900 min-h-screen pt-16">

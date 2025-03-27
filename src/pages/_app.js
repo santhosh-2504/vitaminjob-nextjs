@@ -44,7 +44,6 @@ function AppContent({ Component, pageProps }) {
         <title>Vitamin Job</title>
       </Head>
 
-      {/* AdSense Script */}
       <Script
         strategy="afterInteractive"
         async
