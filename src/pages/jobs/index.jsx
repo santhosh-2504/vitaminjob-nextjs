@@ -31,12 +31,12 @@ const generateJobListingSchema = (jobs, baseUrl) => {
   const jobListings = jobs.map((job) => ({
     "@context": "https://schema.org",
     "@type": "JobPosting",
-    "@id": `${baseUrl}/apply/${job._id}`,
+    "@id": `${baseUrl}/jobs/${job.slug}`,
     title: job.title,
     description: job.shortDescription,
     employmentType: job.jobType,
-    datePosted: job.createdAt,
-    validThrough: job.expiryDate,
+    datePosted: new Date(job.createdAt).toISOString(), // Ensure ISO 8601 format
+    validThrough: job.expiryDate ? new Date(job.expiryDate).toISOString() : null, // Ensure ISO 8601 format
     hiringOrganization: {
       "@type": "Organization",
       name: job.companyName,
@@ -69,7 +69,7 @@ const generateJobListingSchema = (jobs, baseUrl) => {
     applicantLocationRequirements: job.remoteOption ? "Remote" : "On-site",
     keywords: job.keywords ? job.keywords.join(", ") : "",
   }));
-  
+
   return jobListings;
 };
 

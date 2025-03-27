@@ -10,6 +10,7 @@ import { Job } from "@/lib/models/Job";
 import { NextSeo } from 'next-seo';
 
 const JobDetails = ({ job, similarJobs, recentJobs, errorCode }) => {
+  console.log('Browser sees:', { job, similarJobs, recentJobs, errorCode });
   const router = useRouter();
   const { isAuthenticated } = useSelector((state) => state.user);
 
