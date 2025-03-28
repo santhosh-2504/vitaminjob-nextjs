@@ -27,6 +27,7 @@ const jobSchema = mongoose.Schema({
   },
   location: {
     type: [String],
+    //make sure location[0] is addressLocality and location[1] is addressRegion
     required: true
   },
   jobType: {

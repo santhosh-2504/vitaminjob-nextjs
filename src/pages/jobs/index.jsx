@@ -45,26 +45,26 @@ const generateJobListingSchema = (jobs, baseUrl) => ({
       "logo": job.companyLogo,
       "description": job.companyDescription,
     },
-    "jobLocation": {
+    "jobLocation": job.location && job.location.length > 0 ? {
       "@type": "Place",
       "address": {
         "@type": "PostalAddress",
-        "addressLocality": job.location ? job.location[0] : "",
-        "addressRegion": job.location && job.location.length > 1 ? job.location[1] : "",
+        "addressLocality": job.location[0] || "Unknown City",
+        "addressRegion": job.location[1] || "Unknown Region",
         "addressCountry": "IN",
       },
-    },
+    } : null,
     "baseSalary": {
       "@type": "MonetaryAmount",
       "currency": "INR",
       "value": {
         "@type": "QuantitativeValue",
-        "value": job.salary,
+        "value": job.salary || 0,
         "unitText": "YEAR",
       },
     },
     "skills": job.skills ? job.skills.join(", ") : "",
-    "experienceRequirements": job.experienceLevel,
+    "experienceRequirements": "EntryLevel", // Hardcoded for fresher jobs
     "industry": job.industry,
     "jobBenefits": job.benefits ? job.benefits.join(", ") : "",
     "applicantLocationRequirements": job.remoteOption ? "Remote" : "On-site",
