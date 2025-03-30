@@ -30,46 +30,59 @@ const generateMetaDescription = (selectedCity, selectedNiche, searchKeyword, tot
 const generateJobListingSchema = (jobs, baseUrl) => ({
   "@context": "https://schema.org",
   "@type": "JobPostingCollection",
-  "itemListElement": jobs.map((job) => ({
-    "@type": "JobPosting",
-    "@id": `${baseUrl}/jobs/${job.slug}`,
-    "title": job.title,
-    "description": job.shortDescription,
-    "employmentType": job.jobType,
-    "datePosted": new Date(job.createdAt).toISOString(),
-    "validThrough": job.expiryDate ? new Date(job.expiryDate).toISOString() : null,
-    "hiringOrganization": {
-      "@type": "Organization",
-      "name": job.companyName,
-      "sameAs": job.companyWebsite || baseUrl,
-      "logo": job.companyLogo,
-      "description": job.companyDescription,
-    },
-    "jobLocation": job.location && job.location.length > 0 ? {
-      "@type": "Place",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": job.location[0] || "Unknown City",
-        "addressRegion": job.location[1] || "Unknown Region",
-        "addressCountry": "IN",
+  "itemListElement": jobs.map((job) => {
+    // Date validation utility
+    const safeDate = (dateString) => {
+      if (!dateString) return null; // Return null if the date is missing
+      const date = new Date(dateString);
+      return isNaN(date.getTime()) ? null : date; // Return null if the date is invalid
+    };
+
+    // Validate both dates
+    const datePosted = safeDate(job.createdAt);
+    const validThrough = safeDate(job.expiryDate);
+
+    return {
+      "@type": "JobPosting",
+      "@id": `${baseUrl}/jobs/${job.slug}`,
+      "title": job.title,
+      "description": job.shortDescription,
+      "employmentType": job.jobType,
+      "datePosted": datePosted ? datePosted.toISOString() : null, // Convert to ISO 8601 if valid
+      "validThrough": validThrough ? validThrough.toISOString() : null, // Convert to ISO 8601 if valid
+      "hiringOrganization": {
+        "@type": "Organization",
+        "name": job.companyName,
+        "sameAs": job.companyWebsite || baseUrl,
+        "logo": job.companyLogo,
+        "description": job.companyDescription,
       },
-    } : null,
-    "baseSalary": {
-      "@type": "MonetaryAmount",
-      "currency": "INR",
-      "value": {
-        "@type": "QuantitativeValue",
-        "value": job.salary || 0,
-        "unitText": "YEAR",
+      "jobLocation": job.location && job.location.length > 0 ? {
+        "@type": "Place",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": job.location[0] || "Unknown City",
+          "addressRegion": job.location[1] || "Unknown Region",
+          "addressCountry": "IN",
+        },
+      } : null,
+      "baseSalary": {
+        "@type": "MonetaryAmount",
+        "currency": "INR",
+        "value": {
+          "@type": "QuantitativeValue",
+          "value": job.salary || 0,
+          "unitText": "YEAR",
+        },
       },
-    },
-    "skills": job.skills ? job.skills.join(", ") : "",
-    "experienceRequirements": "EntryLevel", // Hardcoded for fresher jobs
-    "industry": job.industry,
-    "jobBenefits": job.benefits ? job.benefits.join(", ") : "",
-    "applicantLocationRequirements": job.remoteOption ? "Remote" : "On-site",
-    "keywords": job.keywords ? job.keywords.join(", ") : "",
-  }))
+      "skills": job.skills ? job.skills.join(", ") : "",
+      "experienceRequirements": "EntryLevel", // Hardcoded for fresher jobs
+      "industry": job.industry,
+      "jobBenefits": job.benefits ? job.benefits.join(", ") : "",
+      "applicantLocationRequirements": job.remoteOption ? "Remote" : "On-site",
+      "keywords": job.keywords ? job.keywords.join(", ") : "",
+    };
+  }),
 });
 
 // Simple JSON sanitization for inline scripts
