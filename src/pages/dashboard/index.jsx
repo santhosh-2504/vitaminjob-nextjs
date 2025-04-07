@@ -10,7 +10,6 @@ import UpdateProfile from "@/components/UpdateProfile";
 import UpdatePassword from "@/components/UpdatePassword";
 import DeleteAccount from "@/components/DeleteAccount";
 
-
 const Dashboard = () => {
   const [show, setShow] = useState(false);
   const [componentName, setComponentName] = useState("My Profile");
@@ -54,11 +53,18 @@ const Dashboard = () => {
           </div>
 
           <div className="dashboard-container flex flex-col md:flex-row gap-6">
+            {/* Mobile Menu Backdrop */}
+            {show && (
+              <div 
+                className="fixed inset-0 bg-black/50 z-30 md:hidden"
+                onClick={() => setShow(false)}
+              />
+            )}
+
             {/* Sidebar */}
             <div
-              className={`sidebar bg-white dark:bg-gray-800 shadow-lg rounded-lg md:w-1/4 transition-transform ${
-                show ? "block" : "hidden md:block"
-              }`}
+              className={`sidebar fixed md:static inset-y-0 left-0 z-40 bg-white dark:bg-gray-800 shadow-lg rounded-lg md:w-1/4 transform transition-transform duration-300 ease-in-out
+                ${show ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
             >
               <ul className="sidebar-links space-y-4 p-6">
                 <h4 className="text-lg font-semibold">Manage Account</h4>
@@ -108,7 +114,7 @@ const Dashboard = () => {
                 onClick={() => setShow(!show)}
               >
                 <LuMoveRight
-                  className={`text-2xl cursor-pointer ${
+                  className={`text-2xl cursor-pointer transition-transform ${
                     show ? "rotate-180" : ""
                   }`}
                 />
