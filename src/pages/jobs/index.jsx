@@ -235,20 +235,44 @@ const Jobs = ({
   // Debouncing effect for search
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
-      updateQueryParams();
+      // Only update if current page hasn't changed
+      if (currentPage === initialCurrentPage) {
+        updateQueryParams();
+      }
     }, 500);
-
+  
     return () => clearTimeout(debounceTimer);
-  }, [searchInput, selectedCity, selectedNiche]);
+  }, [searchInput, selectedCity, selectedNiche, currentPage, initialCurrentPage]);
+
+  // Add these effects to keep state in sync with URL params
+useEffect(() => {
+  setSearchInput(initialSearchKeyword);
+}, [initialSearchKeyword]);
+
+useEffect(() => {
+  setSelectedCity(initialSelectedCity);
+}, [initialSelectedCity]);
+
+useEffect(() => {
+  setSelectedNiche(initialSelectedNiche);
+}, [initialSelectedNiche]);
 
   // Update URL query params
   const updateQueryParams = () => {
-    const query = {};
-    if (searchInput) query.q = searchInput;
-    if (selectedCity && selectedCity !== "All") query.city = selectedCity;
-    if (selectedNiche && selectedNiche !== "All") query.niche = selectedNiche;
-    query.page = 1; // Reset to first page on new search
-
+    const query = { ...router.query }; // Preserve existing query params
+    
+    // Only update page if filters have changed
+    if (searchInput !== initialSearchKeyword || 
+        selectedCity !== initialSelectedCity || 
+        selectedNiche !== initialSelectedNiche) {
+      query.page = 1;
+    }
+  
+    // Update other filters
+    query.q = searchInput || undefined;
+    query.city = selectedCity !== "All" ? selectedCity : undefined;
+    query.niche = selectedNiche !== "All" ? selectedNiche : undefined;
+  
     router.push({
       pathname: "/jobs",
       query,

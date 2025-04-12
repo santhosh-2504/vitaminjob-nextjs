@@ -15,7 +15,12 @@ const JobDetails = ({ job, similarJobs, recentJobs, errorCode }) => {
   const { isAuthenticated } = useSelector((state) => state.user);
 
   const handleBack = () => {
-    router.push('/jobs');
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      // If no history exists, redirect to jobs page
+      router.push('/jobs');
+    }
   };
 
   const handleApply = () => {
