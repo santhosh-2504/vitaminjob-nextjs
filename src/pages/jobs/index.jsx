@@ -635,7 +635,7 @@ useEffect(() => {
                       </nav>
                     </div>
                   )}
-                </>
+                </> 
               ) : (
                 <div className="text-center py-12">
                   <p className="text-xl text-gray-600 dark:text-gray-400">
