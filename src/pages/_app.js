@@ -20,7 +20,17 @@ function AppContent({ Component, pageProps }) {
   useEffect(() => {
     store.dispatch(getUser());
 
-    const handleRouteChangeStart = () => setLoading(true);
+    const handleRouteChangeStart = (url) => {
+      // Extract path without query parameters
+      const currentPath = router.asPath.split('?')[0];
+      const newPath = url.split('?')[0];
+      
+      // Only show loader if path changes
+      if (currentPath !== newPath) {
+        setLoading(true);
+      }
+    };
+
     const handleRouteChangeComplete = () => setLoading(false);
 
     router.events.on("routeChangeStart", handleRouteChangeStart);
@@ -32,7 +42,7 @@ function AppContent({ Component, pageProps }) {
       router.events.off("routeChangeComplete", handleRouteChangeComplete);
       router.events.off("routeChangeError", handleRouteChangeComplete);
     };
-  }, [router.events]);
+  }, [router]);
 
   return (
     <>
