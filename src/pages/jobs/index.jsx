@@ -10,6 +10,7 @@ import {
   FaLaptopHouse,
   FaCalendarAlt,
 } from "react-icons/fa";
+import Fuse from "fuse.js";
 // SEO helper functions
 const generateMetaDescription = (selectedCity, selectedNiche, searchKeyword, totalJobs = 0) => {
   let description = `Browse ${totalJobs} open positions`;
@@ -226,7 +227,8 @@ const Jobs = ({
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [allTitles, setAllTitles] = useState([]);
+  const [allSearchData, setAllSearchData] = useState([]);
+  const [fuse, setFuse] = useState(null);
   const searchRef = useRef(null);
   
   const jobs = initialJobs;
@@ -237,21 +239,30 @@ const Jobs = ({
   // Generate structured data for job listings
   const jobListingSchema = generateJobListingSchema(initialJobs, baseUrl);
 
-   // Fetch all job titles for autocomplete on component mount
+   // Fetch all job titles and company names for autocomplete on component mount
    useEffect(() => {
-    const fetchJobTitles = async () => {
+    const fetchSearchData = async () => {
       try {
         const response = await fetch('/api/jobs/titles');
         const data = await response.json();
-        if (data.success && Array.isArray(data.titles)) {
-          setAllTitles(data.titles);
+        if (data.success && Array.isArray(data.searchData)) {
+          setAllSearchData(data.searchData);
+          
+          // Initialize Fuse with the fetched data
+          const fuseOptions = {
+            keys: ['title', 'companyName'],
+            threshold: 0.3,
+            distance: 100,
+            includeScore: true
+          };
+          setFuse(new Fuse(data.searchData, fuseOptions));
         }
       } catch (error) {
-        console.error("Failed to fetch job titles:", error);
+        console.error("Failed to fetch search data:", error);
       }
     };
     
-    fetchJobTitles();
+    fetchSearchData();
   }, []);
 
     // Close suggestions when clicking outside
@@ -281,23 +292,29 @@ const Jobs = ({
 
     // Filter suggestions based on search input
     useEffect(() => {
-      if (searchInput && searchInput.trim() !== '') {
+      if (searchInput && searchInput.trim() !== '' && fuse) {
         setLoading(true);
         
-        // Using the local titles array for instant filtering
-        const filtered = allTitles
-          .filter(title => 
-            title.toLowerCase().includes(searchInput.toLowerCase()))
-          .slice(0, 5);
+        // Use Fuse.js for fuzzy search
+        const results = fuse.search(searchInput);
         
-        setSuggestions(filtered);
-        setShowSuggestions(filtered.length > 0);
+        // Extract results and sort by score (lower is better)
+        const filteredSuggestions = results
+          .slice(0, 5)
+          .map(result => {
+            const item = result.item;
+            // Format suggestion to show both title and company
+            return `${item.title} - ${item.companyName}`;
+          });
+        
+        setSuggestions(filteredSuggestions);
+        setShowSuggestions(filteredSuggestions.length > 0);
         setLoading(false);
       } else {
         setSuggestions([]);
         setShowSuggestions(false);
       }
-    }, [searchInput, allTitles]);
+    }, [searchInput, fuse]);
 
   // Add these effects to keep state in sync with URL params
 useEffect(() => {
@@ -341,15 +358,16 @@ useEffect(() => {
 
   // Handle suggestion click
   const handleSuggestionClick = (suggestion) => {
-    setSearchInput(suggestion);
+    // If suggestion format is "title - company", extract just the title
+    const title = suggestion.split(' - ')[0];
+    setSearchInput(title);
     setShowSuggestions(false);
     
-    // Navigate to search results with this suggestion
     router.push({
       pathname: "/jobs",
       query: {
         ...router.query,
-        q: suggestion,
+        q: title,
         page: 1
       }
     }, undefined, { shallow: false });

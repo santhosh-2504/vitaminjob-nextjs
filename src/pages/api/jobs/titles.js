@@ -1,3 +1,4 @@
+// /api/jobs/titles.js
 import { catchAsync } from "@/lib/middlewares/catchAsync";
 import dbConnect from "@/lib/dbConnect";
 import { Job } from "@/lib/models/Job";
@@ -5,12 +6,15 @@ import { Job } from "@/lib/models/Job";
 export default catchAsync(async (req, res) => {
   await dbConnect();
 
-  const jobTitles = await Job.find().select("title -_id").lean();
+  const jobs = await Job.find().select("title companyName -_id").lean();
 
-  const titles = jobTitles.map(job => job.title);
+  const searchData = jobs.map(job => ({
+    title: job.title,
+    companyName: job.companyName
+  }));
 
   return res.status(200).json({
     success: true,
-    titles
+    searchData
   });
 });
