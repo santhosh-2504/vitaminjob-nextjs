@@ -417,7 +417,7 @@ useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem("jobsScrollPosition", window.scrollY.toString());
     }
-    router.push(`/jobs/${slug}`);
+    window.location.href = `/jobs/${slug}`;
   };
   return (
     <>
