@@ -11,33 +11,27 @@ import Script from "next/script";
 import "@/styles/globals.css";
 import "react-toastify/dist/ReactToastify.css";
 import { FaSpinner } from "react-icons/fa";
-import CookieConsent from "@/components/CookieConsent";
+import CookieConsent from "@/components/CookieConsent"; // Import the CookieConsent component
 
 function AppContent({ Component, pageProps }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  // Initialize Ads on route change
-  const initAds = () => {
-    if (typeof window !== 'undefined' && window.adsbygoogle) {
-      window.adsbygoogle = window.adsbygoogle || [];
-      window.adsbygoogle.push({});
-    }
-  };
-
   useEffect(() => {
     store.dispatch(getUser());
 
     const handleRouteChangeStart = (url) => {
+      // Extract path without query parameters
       const currentPath = router.asPath.split('?')[0];
       const newPath = url.split('?')[0];
-      if (currentPath !== newPath) setLoading(true);
+      
+      // Only show loader if path changes
+      if (currentPath !== newPath) {
+        setLoading(true);
+      }
     };
 
-    const handleRouteChangeComplete = (url) => {
-      setLoading(false);
-      initAds(); // Initialize ads after route change
-    };
+    const handleRouteChangeComplete = () => setLoading(false);
 
     router.events.on("routeChangeStart", handleRouteChangeStart);
     router.events.on("routeChangeComplete", handleRouteChangeComplete);
@@ -53,24 +47,21 @@ function AppContent({ Component, pageProps }) {
   return (
     <>
       <Head>
-        <meta name="google-adsense-account" content="ca-pub-8413438270446322" />
+        {/* Set the favicon */}
+        <meta name="google-adsense-account" content="ca-pub-8413438270446322"></meta>
         <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
         <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
         <title>Vitamin Job</title>
       </Head>
 
       <Script
-        strategy="lazyOnLoad" // Changed from afterInteractive
+        strategy="afterInteractive"
         async
         src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8413438270446322"
         crossOrigin="anonymous"
-        onLoad={() => {
-          // Initialize ads after script loads
-          (window.adsbygoogle = window.adsbygoogle || []).push({});
-        }}
-        onError={(e) => console.error('AdSense script failed to load', e)}
       />
 
+      {/* Global Loading Spinner */}
       {loading && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-900 z-50">
           <FaSpinner className="animate-spin text-blue-600 text-4xl" />
@@ -93,6 +84,7 @@ function AppContent({ Component, pageProps }) {
         />
       </Layout>
 
+      {/* Cookie Consent Banner */}
       <CookieConsent />
     </>
   );
@@ -102,7 +94,7 @@ function MyApp(props) {
   return (
     <AppProvider>
       <CookiesProvider>
-        <AppContent {...props} />
+      <AppContent {...props} />
       </CookiesProvider>
     </AppProvider>
   );
