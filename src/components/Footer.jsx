@@ -140,7 +140,7 @@ const Footer = () => {
         </div>
       </footer>
       <div className="bg-gray-200 dark:bg-gray-900 py-4 text-center text-gray-600 dark:text-gray-400">
-        &copy; CopyRight 2024. All Rights Reserved By VitaminJob.
+        &copy; CopyRight 2025. All Rights Reserved By VitaminJob.
       </div>
     </>
   );

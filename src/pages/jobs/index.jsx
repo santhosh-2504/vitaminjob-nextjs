@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from "react";
 import Head from "next/head";
 import Link from "next/link";
+import { useRef } from "react";
 import { useRouter } from "next/router";
 import {
   FaMapMarkerAlt,
   FaMoneyBillWave,
   FaBriefcase,
-  FaClock,
-  FaGift,
   FaLaptopHouse,
-  FaTags,
   FaCalendarAlt,
 } from "react-icons/fa";
 // SEO helper functions
@@ -223,6 +221,13 @@ const Jobs = ({
   const [searchInput, setSearchInput] = useState(initialSearchKeyword);
   const [selectedCity, setSelectedCity] = useState(initialSelectedCity);
   const [selectedNiche, setSelectedNiche] = useState(initialSelectedNiche);
+
+  // Autocomplete states
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [allTitles, setAllTitles] = useState([]);
+  const searchRef = useRef(null);
   
   const jobs = initialJobs;
   const totalPages = initialTotalPages;
@@ -231,6 +236,35 @@ const Jobs = ({
 
   // Generate structured data for job listings
   const jobListingSchema = generateJobListingSchema(initialJobs, baseUrl);
+
+   // Fetch all job titles for autocomplete on component mount
+   useEffect(() => {
+    const fetchJobTitles = async () => {
+      try {
+        const response = await fetch('/api/jobs/titles');
+        const data = await response.json();
+        if (data.success && Array.isArray(data.titles)) {
+          setAllTitles(data.titles);
+        }
+      } catch (error) {
+        console.error("Failed to fetch job titles:", error);
+      }
+    };
+    
+    fetchJobTitles();
+  }, []);
+
+    // Close suggestions when clicking outside
+    useEffect(() => {
+      const handleClickOutside = (event) => {
+        if (searchRef.current && !searchRef.current.contains(event.target)) {
+          setShowSuggestions(false);
+        }
+      };
+      
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
   // Debouncing effect for search
   useEffect(() => {
@@ -243,6 +277,27 @@ const Jobs = ({
   
     return () => clearTimeout(debounceTimer);
   }, [searchInput, selectedCity, selectedNiche, currentPage, initialCurrentPage]);
+
+
+    // Filter suggestions based on search input
+    useEffect(() => {
+      if (searchInput && searchInput.trim() !== '') {
+        setLoading(true);
+        
+        // Using the local titles array for instant filtering
+        const filtered = allTitles
+          .filter(title => 
+            title.toLowerCase().includes(searchInput.toLowerCase()))
+          .slice(0, 5);
+        
+        setSuggestions(filtered);
+        setShowSuggestions(filtered.length > 0);
+        setLoading(false);
+      } else {
+        setSuggestions([]);
+        setShowSuggestions(false);
+      }
+    }, [searchInput, allTitles]);
 
   // Add these effects to keep state in sync with URL params
 useEffect(() => {
@@ -284,6 +339,22 @@ useEffect(() => {
     setSearchInput(e.target.value);
   };
 
+  // Handle suggestion click
+  const handleSuggestionClick = (suggestion) => {
+    setSearchInput(suggestion);
+    setShowSuggestions(false);
+    
+    // Navigate to search results with this suggestion
+    router.push({
+      pathname: "/jobs",
+      query: {
+        ...router.query,
+        q: suggestion,
+        page: 1
+      }
+    }, undefined, { shallow: false });
+  };
+
   const handleCityChange = (e) => {
     setSelectedCity(e.target.value);
   };
@@ -303,7 +374,8 @@ useEffect(() => {
   };
 
   // Calculate days remaining until expiry
-  const getDaysRemaining = (expiryDate) => {
+  //Dead Code
+ {/*const getDaysRemaining = (expiryDate) => {
     if (!expiryDate) return null;
     const now = new Date();
     const expiry = new Date(expiryDate);
@@ -320,7 +392,7 @@ useEffect(() => {
     if (searchInput) params.set("q", searchInput);
     params.set("page", currentPage.toString());
     return `${baseUrl}/jobs?${params.toString()}`;
-  };
+  };*/}
 
   // When a user clicks on a job, save the scroll position and navigate to the details page.
   const handleViewDetails = (slug) => {
@@ -391,7 +463,7 @@ useEffect(() => {
             <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
               <div className="flex flex-col space-y-4">
                 <div className="flex flex-col md:flex-row gap-4">
-                  <div className="flex-1">
+                  <div className="flex-1 relative" ref={searchRef}>
                     <label htmlFor="job-search" className="sr-only">
                       Search jobs
                     </label>
@@ -402,9 +474,38 @@ useEffect(() => {
                       placeholder="Search jobs, companies, skills, or keywords..."
                       value={searchInput}
                       onChange={handleSearchChange}
+                      onFocus={() => {
+                        if (suggestions.length > 0) {
+                          setShowSuggestions(true);
+                        }
+                      }}
                       className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                       aria-label="Search jobs"
+                      autoComplete="off"
                     />
+                    
+                    {/* Autocomplete suggestions */}
+                    {showSuggestions && (
+                      <div className="absolute w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg z-50">
+                        {loading ? (
+                          <div className="p-3 text-gray-600 dark:text-gray-300">
+                            Loading...
+                          </div>
+                        ) : (
+                          <ul>
+                            {suggestions.map((suggestion, index) => (
+                              <li
+                                key={index}
+                                onClick={() => handleSuggestionClick(suggestion)}
+                                className="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 last:border-b-0"
+                              >
+                                {suggestion}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div>
                     <label htmlFor="city-filter" className="sr-only">
@@ -443,7 +544,7 @@ useEffect(() => {
                       <option value="Data Science">Data Science</option>
                       <option value="DevOps">DevOps</option>
                     </select>
-                   </div>
+                  </div>
                 </div>
               </div>
             </div>
