@@ -8,6 +8,7 @@ import Link from "next/link";
 import dbConnect from "@/lib/dbConnect";
 import { Job } from "@/lib/models/Job";
 import { NextSeo } from 'next-seo';
+import SocialShare from "@/components/SocialShare";
 
 const JobDetails = ({ job, similarJobs, recentJobs, errorCode }) => {
   console.log('Browser sees:', { job, similarJobs, recentJobs, errorCode });
@@ -488,7 +489,39 @@ const JobDetails = ({ job, similarJobs, recentJobs, errorCode }) => {
           <div className="lg:col-span-1">
             {/* Moved the Apply Now Card to the bottom of the sidebar */}
             
-            {/* Job Overview Card */}
+                      {/* Social Share */}
+                      <SocialShare job={job} />
+            {/* Keywords/Tags Card */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+              <h2 className="text-xl font-semibold mb-6 dark:text-white">Job Keywords</h2>
+              <div className="flex flex-wrap gap-2">
+                {Array.isArray(job.keywords) && job.keywords.length > 0 ? (
+                  job.keywords.map((keyword, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-full text-sm"
+                    >
+                      {keyword}
+                    </span>
+                  ))
+                ) : (
+                  Array.isArray(job.skills) && job.skills.length > 0 ? (
+                    job.skills.map((skill, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-full text-sm"
+                      >
+                        {skill}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-gray-600 dark:text-gray-300">
+                      No keywords specified
+                    </span>
+                  )
+                )}
+              </div>
+            </div>
             {/* Job Overview Card */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
               <h2 className="text-xl font-semibold mb-6 dark:text-white">Job Overview</h2>
@@ -570,37 +603,6 @@ const JobDetails = ({ job, similarJobs, recentJobs, errorCode }) => {
               </div>
             </div>
 
-            {/* Keywords/Tags Card */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
-              <h2 className="text-xl font-semibold mb-6 dark:text-white">Job Keywords</h2>
-              <div className="flex flex-wrap gap-2">
-                {Array.isArray(job.keywords) && job.keywords.length > 0 ? (
-                  job.keywords.map((keyword, index) => (
-                    <span
-                      key={index}
-                      className="px-3 py-1 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-full text-sm"
-                    >
-                      {keyword}
-                    </span>
-                  ))
-                ) : (
-                  Array.isArray(job.skills) && job.skills.length > 0 ? (
-                    job.skills.map((skill, index) => (
-                      <span
-                        key={index}
-                        className="px-3 py-1 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-full text-sm"
-                      >
-                        {skill}
-                      </span>
-                    ))
-                  ) : (
-                    <span className="text-gray-600 dark:text-gray-300">
-                      No keywords specified
-                    </span>
-                  )
-                )}
-              </div>
-            </div>
 
             {/* Contact Card */}
             {job.recruiterContact && (job.recruiterContact.email || job.recruiterContact.phone) && (
