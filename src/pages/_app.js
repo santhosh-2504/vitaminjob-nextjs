@@ -19,14 +19,14 @@ function AppContent({ Component, pageProps }) {
   const [adsInitialized, setAdsInitialized] = useState(false);
 
   // Ad initialization handler
-  const initAds = () => {
+  /*const initAds = () => {
     if (typeof window !== 'undefined' && window.adsbygoogle) {
       window.adsbygoogle = window.adsbygoogle || [];
       window.adsbygoogle.push({});
       return true;
     }
     return false;
-  };
+  };*/
 
   useEffect(() => {
     store.dispatch(getUser());
@@ -40,7 +40,7 @@ function AppContent({ Component, pageProps }) {
     const handleRouteChangeComplete = () => {
       setLoading(false);
       // Initialize ads after small delay to ensure DOM stability
-      setTimeout(initAds, 500);
+      //setTimeout(initAds, 500);
     };
 
     router.events.on("routeChangeStart", handleRouteChangeStart);
@@ -63,8 +63,8 @@ function AppContent({ Component, pageProps }) {
         <title>Vitamin Job</title>
       </Head>
 
-      {/* AdSense Script with Hybrid Loading */}
-      <Script
+      {/* AdSense Script with Hybrid Loading 
+        <Script
         strategy="afterInteractive"
         async
         src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8413438270446322"
@@ -73,7 +73,16 @@ function AppContent({ Component, pageProps }) {
           if (initAds()) setAdsInitialized(true);
         }}
         onError={(e) => console.error('AdSense load error:', e)}
+      />*/}
+
+      <Script
+         strategy="afterInteractive"
+         async
+         src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8413438270446322"
+         crossOrigin="anonymous"
+         onError={(e) => console.error('AdSense load error:', e)}
       />
+
 
       {loading && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-900 z-50">

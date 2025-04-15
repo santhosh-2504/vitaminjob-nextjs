@@ -1,15 +1,23 @@
 import { useEffect } from "react";
 
 const AdBanner = () => {
+
   useEffect(() => {
-    try {
-      if (window.adsbygoogle && process.env.NODE_ENV === "production") {
-        window.adsbygoogle.push({});
+    const timer = setTimeout(() => {
+      try {
+        if (window.adsbygoogle && process.env.NODE_ENV === "production") {
+          window.adsbygoogle.push({});
+          console.log("AdSense initialized");
+        }
+      } catch (e) {
+        console.error("AdSense error:", e);
+        console.log("AdSense not initialized");
       }
-    } catch (e) {
-      console.error("AdSense error:", e);
-    }
+    }, 300);
+  
+    return () => clearTimeout(timer);
   }, []);
+  
 
   return (
     <div className="w-full flex justify-center my-4">
