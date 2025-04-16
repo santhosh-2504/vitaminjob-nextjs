@@ -700,55 +700,99 @@ useEffect(() => {
       ))}
     </div>
 
-    {/* Pagination with SEO links */}
-    {totalPages > 1 && (
-      <div className="mt-8 flex justify-center">
-        <nav className="flex items-center space-x-2" aria-label="Pagination">
-          {currentPage > 1 && (
-            <Link
-              href={{
-                pathname: "/jobs",
-                query: { ...router.query, page: currentPage - 1 },
-              }}
-              rel="prev"
-              className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center"
-            >
-              <span className="mr-1">←</span> Previous
-            </Link>
-          )}
+    {/* Pagination with better UI for many pages */}
+{totalPages > 1 && (
+  <div className="mt-8 flex justify-center">
+    <nav className="flex items-center space-x-2" aria-label="Pagination">
+      {/* Previous button */}
+      {currentPage > 1 && (
+        <Link
+          href={{
+            pathname: "/jobs",
+            query: { ...router.query, page: currentPage - 1 },
+          }}
+          rel="prev"
+          className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center"
+        >
+          <span className="mr-1">←</span> Previous
+        </Link>
+      )}
+      
+      {/* First page */}
+      {currentPage > 3 && (
+        <>
+          <Link
+            href={{
+              pathname: "/jobs",
+              query: { ...router.query, page: 1 },
+            }}
+            className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+          >
+            1
+          </Link>
           
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <Link
-              key={page}
-              href={{
-                pathname: "/jobs",
-                query: { ...router.query, page },
-              }}
-              className={`px-4 py-2 rounded-lg ${
-                currentPage === page
-                  ? "bg-blue-600 text-white"
-                  : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
-              }`}
-            >
-              {page}
-            </Link>
-          ))}
-
-          {currentPage < totalPages && (
-            <Link
-              href={{
-                pathname: "/jobs",
-                query: { ...router.query, page: currentPage + 1 },
-              }}
-              rel="next"
-              className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center"
-            >
-              Next <span className="ml-1">→</span>
-            </Link>
+          {/* Ellipsis if needed */}
+          {currentPage > 4 && (
+            <span className="px-2 text-gray-500 dark:text-gray-400">...</span>
           )}
-        </nav>
-      </div>
-    )}
+        </>
+      )}
+      
+      {/* Pages around current page */}
+      {Array.from({ length: totalPages }, (_, i) => i + 1)
+        .filter(page => page >= Math.max(1, currentPage - 1) && page <= Math.min(totalPages, currentPage + 1))
+        .map(page => (
+          <Link
+            key={page}
+            href={{
+              pathname: "/jobs",
+              query: { ...router.query, page },
+            }}
+            className={`px-4 py-2 rounded-lg ${
+              currentPage === page
+                ? "bg-blue-600 text-white"
+                : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+            }`}
+          >
+            {page}
+          </Link>
+        ))
+      }
+      
+      {/* Ellipsis if needed */}
+      {currentPage < totalPages - 3 && (
+        <span className="px-2 text-gray-500 dark:text-gray-400">...</span>
+      )}
+      
+      {/* Last page */}
+      {currentPage < totalPages - 2 && (
+        <Link
+          href={{
+            pathname: "/jobs",
+            query: { ...router.query, page: totalPages },
+          }}
+          className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+        >
+          {totalPages}
+        </Link>
+      )}
+
+      {/* Next button */}
+      {currentPage < totalPages && (
+        <Link
+          href={{
+            pathname: "/jobs",
+            query: { ...router.query, page: currentPage + 1 },
+          }}
+          rel="next"
+          className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center"
+        >
+          Next <span className="ml-1">→</span>
+        </Link>
+      )}
+    </nav>
+  </div>
+)}
   </>
 ) : (
   <div className="text-center py-12">
