@@ -11,7 +11,6 @@ import { NextSeo } from 'next-seo';
 import SocialShare from "@/components/SocialShare";
 
 const JobDetails = ({ job, similarJobs, recentJobs, errorCode }) => {
-  console.log('Browser sees:', { job, similarJobs, recentJobs, errorCode });
   const router = useRouter();
   const { isAuthenticated } = useSelector((state) => state.user);
 
