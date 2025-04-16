@@ -1,3 +1,4 @@
+// src/pages/404.js
 import Link from 'next/link';
 import { FaQuestion, FaBriefcase, FaHome } from 'react-icons/fa';
 
@@ -12,43 +13,42 @@ export default function Custom404() {
             <FaQuestion className="text-6xl text-red-500 opacity-30" />
           </div>
         </div>
-        
+
         {/* Funny Job Interview Message */}
         <h2 className="text-2xl font-semibold mb-4">Interview Not Found</h2>
-        
         <p className="mb-6 text-gray-600 dark:text-gray-400">
           Looks like this job position has been filled... or never existed.
           Our HR team is currently reviewing your application to find this page.
         </p>
-        
+
         {/* Job Rejection Letter */}
         <div className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg mb-6 text-left">
           <p className="text-sm italic text-gray-700 dark:text-gray-300">
-            Dear Applicant,<br/><br/>
-            We regret to inform you that the page you're looking for has decided to pursue opportunities elsewhere.
-            While your URL was impressive, we've moved in a different directory.<br/><br/>
-            Sincerely,<br/>
+            Dear Applicant,<br /><br />
+            We regret to inform you that the page you&lsquo;re looking for has decided to pursue opportunities elsewhere.
+            While your URL was impressive, we&lsquo;ve moved in a different directory.<br /><br />
+            Sincerely,<br />
             The 404 Department
           </p>
         </div>
-        
+
         {/* Resume Options */}
         <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6">
-          <Link href="/">
-            <div className="flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-300">
+          <Link href="/" passHref>
+            <button className="flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-300">
               <FaHome className="mr-2" />
               Back to Homepage
-            </div>
+            </button>
           </Link>
-          
-          <Link href="/jobs">
-            <div className="flex items-center justify-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-300">
+
+          <Link href="/jobs" passHref>
+            <button className="flex items-center justify-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-300">
               <FaBriefcase className="mr-2" />
               Browse Jobs
-            </div>
+            </button>
           </Link>
         </div>
-        
+
         {/* Fun Footnote */}
         <p className="text-xs text-gray-500 dark:text-gray-500 mt-8">
           * This page is currently on a coffee break. Please try again when it returns to the office.
