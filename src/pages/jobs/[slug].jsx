@@ -239,9 +239,21 @@ const JobDetails = ({ job, similarJobs, recentJobs, errorCode }) => {
                 <div className="w-full md:w-3/4">
                   <div className="mb-6">
                     <h1 className="text-3xl font-bold dark:text-white mb-2">{job.title}</h1>
-                    <h2 className="text-xl text-blue-600 dark:text-blue-400 font-semibold">
-                      {job.companyName}
-                    </h2>
+                    {job.companyWebsite ? (
+                      <a
+                        href={job.companyWebsite}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xl text-blue-600 dark:text-blue-400 font-semibold hover:underline"
+                      >
+                        {job.companyName}
+                      </a>
+                    ) : (
+                      <h2 className="text-xl text-blue-600 dark:text-blue-400 font-semibold">
+                        {job.companyName}
+                      </h2>
+                    )}
+
                     {job.expiryDate && (
                       <div className="mt-2 flex items-center text-gray-500 dark:text-gray-400">
                         <FaClock className="mr-2" />
