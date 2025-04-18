@@ -4,8 +4,14 @@ export default function PWAInstallPrompt() {
   const [supportsPWA, setSupportsPWA] = useState(false);
   const [promptInstall, setPromptInstall] = useState(null);
   const [isInstalled, setIsInstalled] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(false);
 
   useEffect(() => {
+    const dismissed = localStorage.getItem('pwa-install-dismissed');
+    if (dismissed === 'true') {
+      setIsDismissed(true);
+    }
+
     const handler = (e) => {
       e.preventDefault();
       setSupportsPWA(true);
@@ -21,7 +27,7 @@ export default function PWAInstallPrompt() {
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
 
-  const onClick = (evt) => {
+  const onClickInstall = (evt) => {
     evt.preventDefault();
     if (!promptInstall) return;
 
@@ -37,7 +43,12 @@ export default function PWAInstallPrompt() {
     });
   };
 
-  if (!supportsPWA || isInstalled) return null;
+  const onDismiss = () => {
+    localStorage.setItem('pwa-install-dismissed', 'true');
+    setIsDismissed(true);
+  };
+
+  if (!supportsPWA || isInstalled || isDismissed) return null;
 
   return (
     <div className="fixed bottom-4 right-4 max-w-sm p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 z-50">
@@ -47,12 +58,20 @@ export default function PWAInstallPrompt() {
       <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
         Add this app to your home screen for a better experience.
       </p>
-      <button
-        onClick={onClick}
-        className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
-      >
-        Install App
-      </button>
+      <div className="flex justify-end space-x-2">
+        <button
+          onClick={onDismiss}
+          className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:underline"
+        >
+          Dismiss
+        </button>
+        <button
+          onClick={onClickInstall}
+          className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
+        >
+          Install App
+        </button>
+      </div>
     </div>
   );
 }
