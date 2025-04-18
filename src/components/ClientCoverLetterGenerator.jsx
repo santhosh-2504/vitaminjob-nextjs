@@ -80,7 +80,7 @@ const ClientCoverLetterGenerator = ({ job }) => {
           "X-Title": "Job Platform Cover Letter Generator"
         },
         body: JSON.stringify({
-          model: "agentica-org/deepcoder-14b-preview:free",
+          model: "agentica-org/deepcoder-14b-preview:free", 
           messages: [{ role: "user", content: prompt }]
         })
       });
