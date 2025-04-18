@@ -56,7 +56,7 @@ export default function PWAInstallPrompt() {
         Install Vitamin Job
       </h3>
       <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
-        Add this app to your home screen for a better experience.
+        Add this app to your home screen for a better experience !
       </p>
       <div className="flex justify-end space-x-2">
         <button
