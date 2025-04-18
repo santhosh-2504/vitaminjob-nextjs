@@ -8,10 +8,16 @@ import { AppProvider } from "@/store/provider";
 import { CookiesProvider } from "react-cookie";
 import Head from "next/head";
 import Script from "next/script";
+import dynamic from "next/dynamic";
 import "@/styles/globals.css";
 import "react-toastify/dist/ReactToastify.css";
 import { FaSpinner } from "react-icons/fa";
-import CookieConsent from "@/components/CookieConsent"; // Import the CookieConsent component
+import CookieConsent from "@/components/CookieConsent";
+
+// Dynamically import PWA install prompt component with client-side rendering only
+const PWAInstallPrompt = dynamic(() => import('@/components/PWAInstallPrompt'), {
+  ssr: false,
+});
 
 function AppContent({ Component, pageProps }) {
   const router = useRouter();
@@ -51,6 +57,9 @@ function AppContent({ Component, pageProps }) {
         <meta name="google-adsense-account" content="ca-pub-8413438270446322"></meta>
         <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
         <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <title>Vitamin Job</title>
       </Head>
 
@@ -86,6 +95,9 @@ function AppContent({ Component, pageProps }) {
 
       {/* Cookie Consent Banner */}
       <CookieConsent />
+      
+      {/* PWA Install Prompt - Client side only */}
+      <PWAInstallPrompt />
     </>
   );
 }

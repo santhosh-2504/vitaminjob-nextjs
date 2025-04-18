@@ -9,6 +9,7 @@ import dbConnect from "@/lib/dbConnect";
 import { Job } from "@/lib/models/Job";
 import { NextSeo } from 'next-seo';
 import SocialShare from "@/components/SocialShare";
+import ClientCoverLetterGenerator from "@/components/ClientCoverLetterGenerator";
 
 const JobDetails = ({ job, similarJobs, recentJobs, errorCode }) => {
   const router = useRouter();
@@ -38,6 +39,10 @@ const JobDetails = ({ job, similarJobs, recentJobs, errorCode }) => {
     }
     
     window.open(job.applyLink, '_blank');
+  };
+
+  const handleDownloadCoverLetter = () => {
+    toast.success("Cover letter downloaded successfully!");
   };
 
   const formatDate = (dateString) => {
@@ -475,15 +480,29 @@ const JobDetails = ({ job, similarJobs, recentJobs, errorCode }) => {
                   </div>
                 )}
               </div>
-              <button
-                onClick={handleApply}
-                className="group relative w-full inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-xl shadow-lg transform transition-all duration-200 hover:scale-105 hover:shadow-xl"
-              >
-                <span className="relative flex items-center">
-                  Apply Now
-                  <FaExternalLinkAlt className="ml-2 w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
-                </span>
-              </button>
+              <div className="flex flex-col space-y-6 mt-8">
+  {isAuthenticated ? (
+    <div className="p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 shadow-sm">
+      <ClientCoverLetterGenerator job={job} />
+    </div>
+  ) : (
+    <div className="p-4 text-center text-sm text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-500 rounded-lg bg-blue-50 dark:bg-blue-900/30 font-medium">
+      Please log in to download your cover letter.
+    </div>
+  )}
+
+  <button
+    onClick={handleApply}
+    className="group w-full inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg shadow-md transform transition-all duration-200 hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+  >
+    <span className="flex items-center">
+      Apply Now
+      <FaExternalLinkAlt className="ml-2 w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-150" />
+    </span>
+  </button>
+</div>
+
+
               <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
                 You'll be redirected to the company's application page
               </p>
