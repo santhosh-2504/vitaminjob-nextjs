@@ -74,7 +74,7 @@ const ClientCoverLetterGenerator = ({ job }) => {
       const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          "Authorization": `Bearer ${process.env.NEXT_PUBLIC_OPENROUTER_API_KEY}`,
           "Content-Type": "application/json",
           "HTTP-Referer": window.location.href,
           "X-Title": "Job Platform Cover Letter Generator"
