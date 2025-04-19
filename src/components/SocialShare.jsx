@@ -8,14 +8,17 @@ const SocialShare = ({ job }) => {
   // Current URL for sharing
   const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
   
+  // WhatsApp group link
+  const whatsAppGroupLink = "https://chat.whatsapp.com/Jcvi1ScKimw4D6QHwB8bJl";
+  
   // Create sharing URLs for different platforms
-  const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(currentUrl)}&title=${encodeURIComponent(`${job.title} at ${job.companyName}`)}&summary=${encodeURIComponent(`Check out this ${job.title} position at ${job.companyName}. ${job.shortDescription || ''}`)}`;
+  const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(currentUrl)}&title=${encodeURIComponent(`${job.title} at ${job.companyName}`)}&summary=${encodeURIComponent(`Check out this ${job.title} position at ${job.companyName}. ${job.shortDescription || ''}\n\nApply here: ${currentUrl}\n\nJoin our WhatsApp group for updates: ${whatsAppGroupLink}`)}`;
   
-  const whatsAppUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(`*${job.title} at ${job.companyName}*\n\nLocation: ${Array.isArray(job.location) ? job.location.join(", ") : job.location || "Not specified"}\nJob Type: ${job.jobType || "Not specified"}\nSalary: ${job.salary || "Not specified"}\n\n${job.shortDescription || ''}\n\nApply here: ${currentUrl}`)}`;
+  const whatsAppUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(`*${job.title} at ${job.companyName}*\n\nLocation: ${Array.isArray(job.location) ? job.location.join(", ") : job.location || "Not specified"}\nJob Type: ${job.jobType || "Not specified"}\nSalary: ${job.salary || "Not specified"}\n\n${job.shortDescription || ''}\n\nApply here: ${currentUrl}\n\nJoin our WhatsApp group for updates: ${whatsAppGroupLink}`)}`;
   
-  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}`;
+  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}&quote=${encodeURIComponent(`Check out this job opportunity: ${job.title} at ${job.companyName}\n\nApply here: ${currentUrl}\n\nJoin our WhatsApp group for updates: ${whatsAppGroupLink}`)}`;
   
-  const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(currentUrl)}&text=${encodeURIComponent(`Check out this job opportunity: ${job.title} at ${job.companyName}`)}`;
+  const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(currentUrl)}&text=${encodeURIComponent(`Check out this job opportunity: ${job.title} at ${job.companyName}\n\nApply here: ${currentUrl}\n\nJoin our WhatsApp group for updates: ${whatsAppGroupLink}`)}`;
 
   // Function to copy job details to clipboard
   const copyToClipboard = () => {
@@ -29,6 +32,8 @@ Salary: ${job.salary || "Not specified"}
 Experience Level: ${job.experienceLevel || "Not specified"}
 
 Apply here: ${currentUrl}
+
+Join our WhatsApp group for updates: ${whatsAppGroupLink}
     `;
     
     // Copy to clipboard
@@ -96,19 +101,17 @@ Apply here: ${currentUrl}
             <FaTwitter size={18} />
           </a>
         
-        
           <button
-  onClick={copyToClipboard}
-  className="flex items-center justify-center h-10 w-10 rounded-full bg-blue-400 text-white hover:bg-blue-500 transition-colors"
-  aria-label="Copy job details"
->
-  {copied ? (
-    <FaCheck size={18} />
-  ) : (
-    <FaCopy size={18} />
-  )}
-</button>
-
+            onClick={copyToClipboard}
+            className="flex items-center justify-center h-10 w-10 rounded-full bg-gray-500 text-white hover:bg-gray-600 transition-colors"
+            aria-label="Copy job details"
+          >
+            {copied ? (
+              <FaCheck size={18} />
+            ) : (
+              <FaCopy size={18} />
+            )}
+          </button>
         </div>
       </div>
       
