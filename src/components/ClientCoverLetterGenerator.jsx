@@ -80,7 +80,7 @@ const ClientCoverLetterGenerator = ({ job }) => {
           "X-Title": "Job Platform Cover Letter Generator"
         },
         body: JSON.stringify({
-          model: "thudm/glm-z1-32b:free", 
+          model: "microsoft/mai-ds-r1:free", 
           messages: [{ role: "user", content: prompt }]
         })
       });
